@@ -1,0 +1,57 @@
+---
+
+---
+
+<div class="mt-8 bg-indigo-50 rounded-2xl p-6 sm:p-8 border border-indigo-100">
+    <div class="flex flex-col items-center justify-center text-center">
+        <span
+            class="text-sm font-semibold uppercase tracking-wider text-indigo-600 mb-1"
+        >
+            Sueldo Líquido Estimado
+        </span>
+        <div class="flex items-baseline gap-1 my-2">
+            <span
+                class="text-4xl sm:text-5xl font-extrabold text-slate-900"
+                id="result-liquid"
+            >
+                $ 0
+            </span>
+        </div>
+        <div class="h-1 w-20 bg-indigo-200 rounded-full my-4"></div>
+    </div>
+
+    <div class="space-y-3  mt-4 text-sm sm:text-base">
+        <div
+            class="flex justify-between items-center py-2 border-b border-indigo-200/50"
+        >
+            <span class="text-slate-600">Aporte Jubilatorio (15%)</span>
+            <span class="font-medium text-slate-900" id="result-retirement"
+                >$ 0</span
+            >
+        </div>
+        <div
+            class="flex justify-between items-center py-2 border-b border-indigo-200/50"
+        >
+            <span class="text-slate-600">FONASA (Variable)</span>
+            <span class="font-medium text-slate-900" id="result-fonasa"
+                >$ 0</span
+            >
+        </div>
+        <div
+            class="flex justify-between items-center py-2 border-b border-indigo-200/50"
+        >
+            <span class="text-slate-600">FRL (0.10%)</span>
+            <span class="font-medium text-slate-900" id="result-frl">$ 0</span>
+        </div>
+        <div
+            class="flex justify-between items-center py-2 border-b border-indigo-200/50"
+        >
+            <span class="text-slate-600">IRPF Estimado</span>
+            <span class="font-medium text-slate-900" id="result-irpf">$ 0</span>
+        </div>
+        <div class="flex justify-between items-center py-2 pt-3 font-semibold">
+            <span class="text-red-500">Total Descuentos</span>
+            <span class="text-red-500" id="result-total-discounts">$ 0</span>
+        </div>
+    </div>
+</div>

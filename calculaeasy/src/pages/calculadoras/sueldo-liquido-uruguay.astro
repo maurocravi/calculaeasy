@@ -1,0 +1,220 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import CalculatorShell from "../../components/calculators/CalculatorShell.astro";
+import InputNumber from "../../components/calculators/InputNumber.astro";
+import Select from "../../components/calculators/Select.astro";
+import ResultCard from "../../components/calculators/ResultCard.astro";
+---
+
+<Layout>
+    <div class="bg-indigo-50 min-h-screen py-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+            <a
+                href="/"
+                class="inline-flex items-center text-indigo-600 font-medium mb-8 hover:text-indigo-800 transition-colors"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5 mr-2"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                >
+                    <path
+                        fill-rule="evenodd"
+                        d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                        clip-rule="evenodd"></path>
+                </svg>
+                Volver al inicio
+            </a>
+
+            <CalculatorShell
+                title="Calculadora Sueldo Líquido"
+                description="Calculá tu sueldo en mano a partir del nominal. Incluye FONASA, aportes jubilatorios e IRPF."
+            >
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+                    <!-- Form -->
+                    <div>
+                        <div class="space-y-6">
+                            <InputNumber
+                                label="Sueldo Nominal"
+                                name="nominal"
+                                placeholder="Ej: 50000"
+                                min={0}
+                            />
+
+                            <Select
+                                label="Moneda"
+                                name="currency"
+                                options={[
+                                    {
+                                        label: "Pesos Uruguayos ($)",
+                                        value: "UYU",
+                                    },
+                                    { label: "Dólares (U$S)", value: "USD" },
+                                ]}
+                            />
+
+                            <div id="exchange-rate-container" class="hidden">
+                                <InputNumber
+                                    label="Cotización Dólar"
+                                    name="exchangeRate"
+                                    value={40}
+                                    min={1}
+                                />
+                            </div>
+
+                            <Select
+                                label="Hijos a cargo (menores/discap)"
+                                name="children"
+                                options={[
+                                    { label: "0", value: 0 },
+                                    { label: "1", value: 1 },
+                                    { label: "2", value: 2 },
+                                    { label: "3+", value: 3 },
+                                ]}
+                            />
+
+                            <Select
+                                label="Cónyuge a cargo"
+                                name="spouse"
+                                options={[
+                                    { label: "No", value: 0 },
+                                    { label: "Sí", value: 1 },
+                                ]}
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Results -->
+                    <div>
+                        <ResultCard />
+
+                        <div
+                            class="mt-6 p-4 bg-yellow-50 rounded-xl border border-yellow-100 text-sm text-yellow-800"
+                        >
+                            <strong>Nota:</strong> Este cálculo es una estimación
+                            basada en el régimen general dependiente. Puede variar
+                            según tu situación específica (cajas paraestatales, régimen
+                            ficto, etc).
+                        </div>
+                    </div>
+                </div>
+            </CalculatorShell>
+        </div>
+    </div>
+</Layout>
+
+<script>
+    import { calculateNetSalary } from "../../lib/calculations/uy/salary/netSalary";
+    import { IRPF_CONFIG_2026 } from "../../lib/calculations/uy/irpf/tables-2026";
+    import { formatUYU } from "../../lib/calculations/utils";
+
+    // Configuration Constants
+    const RATES = {
+        retirementRate: 0.15,
+        fonasaRate: 0.045, // Simplified avg (3% - 6% - etc) - TODO: Make this dynamic based inputs
+        frlRate: 0.001,
+    };
+
+    // DOM Elements
+    const nominalInput = document.querySelector(
+        'input[name="nominal"]',
+    ) as HTMLInputElement;
+    const currencySelect = document.querySelector(
+        'select[name="currency"]',
+    ) as HTMLSelectElement;
+    const exchangeRateInput = document.querySelector(
+        'input[name="exchangeRate"]',
+    ) as HTMLInputElement;
+    const exchangeRateContainer = document.getElementById(
+        "exchange-rate-container",
+    );
+    const childrenSelect = document.querySelector(
+        'select[name="children"]',
+    ) as HTMLSelectElement;
+    const spouseSelect = document.querySelector(
+        'select[name="spouse"]',
+    ) as HTMLSelectElement;
+
+    const resultLiquid = document.getElementById("result-liquid");
+    const resultRetirement = document.getElementById("result-retirement");
+    const resultFonasa = document.getElementById("result-fonasa");
+    const resultFrl = document.getElementById("result-frl");
+    const resultIrpf = document.getElementById("result-irpf");
+    const resultTotalDiscounts = document.getElementById(
+        "result-total-discounts",
+    );
+
+    function toggleExchangeRate() {
+        if (currencySelect.value === "USD") {
+            exchangeRateContainer?.classList.remove("hidden");
+        } else {
+            exchangeRateContainer?.classList.add("hidden");
+        }
+    }
+
+    function recalculate() {
+        const nominal = parseFloat(nominalInput.value) || 0;
+        const currency = currencySelect.value as "UYU" | "USD";
+        const exchangeRate = parseFloat(exchangeRateInput.value) || 40;
+        const childrenCount = parseInt(childrenSelect.value) || 0;
+        const hasSpouse = parseInt(spouseSelect.value) === 1;
+
+        // TODO: Improve FONASA logic based on children/spouse
+        // Simple logic for now:
+        // No children/spouse: 3% (up to 2.5 BPC) or 4.5% or 6%?
+        // Using 4.5% + 3% (if children) logic is complex.
+        // For MVP using a standard generic rate or 6% if simplified?
+        // Let's use 4.5% base + 1.5% if children > 0?
+        // Or just 6% flat for "with children"?
+        // Let's keep the fixed RATES.fonasaRate for now or do a tiny switch:
+        let currentFonasaRate = 0.045; // Base simplified
+        if (childrenCount > 0 || hasSpouse) {
+            currentFonasaRate = 0.06; // Simplification
+        }
+
+        const currentRates = { ...RATES, fonasaRate: currentFonasaRate };
+
+        const result = calculateNetSalary(
+            {
+                nominalMonthly: nominal,
+                currency,
+                exchangeRate,
+                year: 2026,
+                childrenCount,
+                hasSpouse,
+            },
+            currentRates,
+            IRPF_CONFIG_2026,
+        );
+
+        // Update UI
+        if (resultLiquid) resultLiquid.innerText = formatUYU(result.netUYU);
+        if (resultRetirement)
+            resultRetirement.innerText = formatUYU(
+                result.contributions.retirement,
+            );
+        if (resultFonasa)
+            resultFonasa.innerText = formatUYU(result.contributions.fonasa);
+        if (resultFrl)
+            resultFrl.innerText = formatUYU(result.contributions.frl);
+        if (resultIrpf) resultIrpf.innerText = formatUYU(result.irpf.amount);
+        if (resultTotalDiscounts)
+            resultTotalDiscounts.innerText =
+                "- " + formatUYU(result.totalDiscounts);
+    }
+
+    // Event Listeners
+    nominalInput?.addEventListener("input", recalculate);
+    currencySelect?.addEventListener("change", () => {
+        toggleExchangeRate();
+        recalculate();
+    });
+    exchangeRateInput?.addEventListener("input", recalculate);
+    childrenSelect?.addEventListener("change", recalculate);
+    spouseSelect?.addEventListener("change", recalculate);
+
+    // Initial calculation
+    toggleExchangeRate();
+    recalculate();
+</script>

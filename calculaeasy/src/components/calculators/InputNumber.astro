@@ -1,0 +1,46 @@
+---
+interface Props {
+    label: string;
+    name: string;
+    id?: string;
+    placeholder?: string;
+    value?: number;
+    min?: number;
+    step?: number;
+    required?: boolean;
+}
+
+const {
+    label,
+    name,
+    id,
+    placeholder,
+    value,
+    min = 0,
+    step = 1,
+    required = false,
+} = Astro.props;
+const inputId = id || name;
+---
+
+<div class="mb-6">
+    <label
+        for={inputId}
+        class="block text-sm font-semibold text-slate-700 mb-2"
+    >
+        {label}
+    </label>
+    <div class="relative">
+        <input
+            type="number"
+            name={name}
+            id={inputId}
+            class="block w-full px-4 py-4 rounded-xl border-slate-200 bg-slate-50 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-indigo-500 hover:border-indigo-300 transition-colors shadow-sm text-lg"
+            placeholder={placeholder}
+            value={value}
+            min={min}
+            step={step}
+            required={required}
+        />
+    </div>
+</div>
