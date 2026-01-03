@@ -43,6 +43,50 @@ const monthsOptions = [
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                     <!-- Form -->
                     <div class="space-y-6">
+                        <!-- 1. Sueldo Inputs -->
+                        <div id="input-monthly-nominal">
+                            <InputNumber
+                                label="Sueldo Nominal Mensual"
+                                name="monthlyNominal"
+                                placeholder="Ej: 45000"
+                                min={0}
+                            />
+                        </div>
+
+                        <div id="input-semester-total" class="hidden">
+                            <InputNumber
+                                label="Total ganado en el semestre (Nominal)"
+                                name="semesterTotal"
+                                placeholder="Ej: 270000"
+                                min={0}
+                            />
+                            <p class="text-sm text-slate-500 mt-2">
+                                Sumá todos los sueldos nominales, horas extras y
+                                comisiones percibidas entre diciembre-mayo (para
+                                junio) o junio-noviembre (para diciembre).
+                            </p>
+                        </div>
+
+                        <!-- 2. Moneda -->
+                        <Select
+                            label="Moneda"
+                            name="currency"
+                            options={[
+                                { label: "Pesos Uruguayos ($)", value: "UYU" },
+                                { label: "Dólares (U$S)", value: "USD" },
+                            ]}
+                        />
+
+                        <div id="exchange-rate-container" class="hidden">
+                            <InputNumber
+                                label="Cotización Dólar"
+                                name="exchangeRate"
+                                value={40}
+                                min={1}
+                            />
+                        </div>
+
+                        <!-- 3. Forma de cálculo -->
                         <Select
                             label="Forma de cálculo"
                             name="mode"
@@ -58,35 +102,14 @@ const monthsOptions = [
                             ]}
                         />
 
-                        <div id="monthly-inputs">
-                            <div class="space-y-6">
-                                <InputNumber
-                                    label="Sueldo Nominal Mensual"
-                                    name="monthlyNominal"
-                                    placeholder="Ej: 45000"
-                                    min={0}
-                                />
-                                <Select
-                                    label="Meses trabajados (en el semestre)"
-                                    name="monthsWorked"
-                                    options={monthsOptions}
-                                    value={6}
-                                />
-                            </div>
-                        </div>
-
-                        <div id="semester-inputs" class="hidden">
-                            <InputNumber
-                                label="Total ganado en el semestre (Nominal)"
-                                name="semesterTotal"
-                                placeholder="Ej: 270000"
-                                min={0}
+                        <!-- 4. Meses trabajados -->
+                        <div id="input-months-worked">
+                            <Select
+                                label="Meses trabajados (en el semestre)"
+                                name="monthsWorked"
+                                options={monthsOptions}
+                                value={6}
                             />
-                            <p class="text-sm text-slate-500 mt-2">
-                                Sumá todos los sueldos nominales, horas extras y
-                                comisiones percibidas entre diciembre-mayo (para
-                                junio) o junio-noviembre (para diciembre).
-                            </p>
                         </div>
                     </div>
 
@@ -151,8 +174,25 @@ const monthsOptions = [
     const modeSelect = document.querySelector(
         'select[name="mode"]',
     ) as HTMLSelectElement;
-    const monthlyInputs = document.getElementById("monthly-inputs");
-    const semesterInputs = document.getElementById("semester-inputs");
+    const inputCurrency = document.querySelector(
+        'select[name="currency"]',
+    ) as HTMLSelectElement;
+    const inputExchangeRate = document.querySelector(
+        'input[name="exchangeRate"]',
+    ) as HTMLInputElement;
+    const exchangeRateContainer = document.getElementById(
+        "exchange-rate-container",
+    );
+
+    const containerMonthlyNominal = document.getElementById(
+        "input-monthly-nominal",
+    );
+    const containerSemesterTotal = document.getElementById(
+        "input-semester-total",
+    );
+    const containerMonthsWorked = document.getElementById(
+        "input-months-worked",
+    );
 
     const inputMonthlyNominal = document.querySelector(
         'input[name="monthlyNominal"]',
@@ -168,22 +208,40 @@ const monthsOptions = [
     const resultSubtitle = document.getElementById("result-subtitle");
     const resultNotes = document.getElementById("result-notes");
 
+    function toggleExchangeRate() {
+        if (inputCurrency.value === "USD") {
+            exchangeRateContainer?.classList.remove("hidden");
+        } else {
+            exchangeRateContainer?.classList.add("hidden");
+        }
+        recalculate();
+    }
+
     function toggleMode() {
-        if (!monthlyInputs || !semesterInputs) return;
+        if (
+            !containerMonthlyNominal ||
+            !containerSemesterTotal ||
+            !containerMonthsWorked
+        )
+            return;
 
         const mode = modeSelect.value;
         if (mode === "monthly") {
-            monthlyInputs.classList.remove("hidden");
-            semesterInputs.classList.add("hidden");
+            containerMonthlyNominal.classList.remove("hidden");
+            containerMonthsWorked.classList.remove("hidden");
+            containerSemesterTotal.classList.add("hidden");
         } else {
-            monthlyInputs.classList.add("hidden");
-            semesterInputs.classList.remove("hidden");
+            containerMonthlyNominal.classList.add("hidden");
+            containerMonthsWorked.classList.add("hidden");
+            containerSemesterTotal.classList.remove("hidden");
         }
         recalculate();
     }
 
     function recalculate() {
         const mode = modeSelect.value as "monthly" | "semesterTotal";
+        const currency = (inputCurrency.value as "UYU" | "USD") || "UYU";
+        const exchangeRate = parseFloat(inputExchangeRate.value) || 40;
 
         const monthlyNominal = parseFloat(inputMonthlyNominal.value) || 0;
         const monthsWorked = parseInt(inputMonthsWorked.value) || 6;
@@ -191,6 +249,8 @@ const monthsOptions = [
 
         const result = calculateAguinaldo({
             mode,
+            currency,
+            exchangeRate,
             monthlyNominal,
             monthsWorked,
             semesterTotal,
@@ -217,6 +277,8 @@ const monthsOptions = [
 
     // Listeners
     modeSelect?.addEventListener("change", toggleMode);
+    inputCurrency?.addEventListener("change", toggleExchangeRate);
+    inputExchangeRate?.addEventListener("input", recalculate);
 
     inputMonthlyNominal?.addEventListener("input", recalculate);
     inputMonthsWorked?.addEventListener("change", recalculate);

@@ -5,6 +5,8 @@ export type OvertimeInput = {
   overtimeHours: number;    // horas extra trabajadas
   monthlyHours: number;     // horas mensuales estándar (default 192 o 200)
   surchargeRate: number;    // 0.50 o 1.00 (recargo)
+  currency: "UYU" | "USD";
+  exchangeRate?: number;
 };
 
 export type OvertimeOutput = {
@@ -16,10 +18,16 @@ export type OvertimeOutput = {
 
 export function calculateOvertime(input: OvertimeInput): OvertimeOutput {
   const notes: string[] = [];
+  const exchangeRate = input.exchangeRate || 1;
+  let nominal = input.monthlyNominal;
+
+  if (input.currency === "USD") {
+    nominal = nominal * exchangeRate;
+  }
 
   const monthlyHours = input.monthlyHours > 0 ? input.monthlyHours : 192;
 
-  const hourlyRate = round2(input.monthlyNominal / monthlyHours);
+  const hourlyRate = round2(nominal / monthlyHours);
   const overtimeHourlyRate = round2(hourlyRate * (1 + input.surchargeRate));
   const overtimePay = round2(overtimeHourlyRate * input.overtimeHours);
 

@@ -44,6 +44,31 @@ const modes = [
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                     <!-- Form -->
                     <div class="space-y-6">
+                        <InputNumber
+                            label="Monto"
+                            name="amount"
+                            placeholder="Ej: 1000"
+                            min={0}
+                        />
+
+                        <Select
+                            label="Moneda"
+                            name="currency"
+                            options={[
+                                { label: "Pesos Uruguayos ($)", value: "UYU" },
+                                { label: "Dólares (U$S)", value: "USD" },
+                            ]}
+                        />
+
+                        <div id="exchange-rate-container" class="hidden">
+                            <InputNumber
+                                label="Cotización Dólar"
+                                name="exchangeRate"
+                                value={40}
+                                min={1}
+                            />
+                        </div>
+
                         <Select
                             label="¿Qué querés hacer?"
                             name="mode"
@@ -54,13 +79,6 @@ const modes = [
                             label="Tasa de IVA"
                             name="rate"
                             options={vatRates}
-                        />
-
-                        <InputNumber
-                            label="Monto"
-                            name="amount"
-                            placeholder="Ej: 1000"
-                            min={0}
                         />
                     </div>
 
@@ -149,19 +167,42 @@ const modes = [
         'input[name="amount"]',
     ) as HTMLInputElement;
 
+    const inputCurrency = document.querySelector(
+        'select[name="currency"]',
+    ) as HTMLSelectElement;
+    const inputExchangeRate = document.querySelector(
+        'input[name="exchangeRate"]',
+    ) as HTMLInputElement;
+    const exchangeRateContainer = document.getElementById(
+        "exchange-rate-container",
+    );
+
     const resultNet = document.getElementById("result-net");
     const resultVat = document.getElementById("result-vat");
     const resultGross = document.getElementById("result-gross");
+
+    function toggleExchangeRate() {
+        if (inputCurrency.value === "USD") {
+            exchangeRateContainer?.classList.remove("hidden");
+        } else {
+            exchangeRateContainer?.classList.add("hidden");
+        }
+        recalculate();
+    }
 
     function recalculate() {
         const mode = selectMode.value as "add" | "remove";
         const rate = parseFloat(selectRate.value) || 0.22;
         const amount = parseFloat(inputAmount.value) || 0;
+        const currency = (inputCurrency.value as "UYU" | "USD") || "UYU";
+        const exchangeRate = parseFloat(inputExchangeRate.value) || 40;
 
         const result = calculateVat({
             mode,
             rate,
             amount,
+            currency,
+            exchangeRate,
         });
 
         if (resultNet) resultNet.innerText = formatUYU(result.net);
@@ -173,4 +214,6 @@ const modes = [
     selectMode?.addEventListener("change", recalculate);
     selectRate?.addEventListener("change", recalculate);
     inputAmount?.addEventListener("input", recalculate);
+    inputCurrency?.addEventListener("change", toggleExchangeRate);
+    inputExchangeRate?.addEventListener("input", recalculate);
 </script>

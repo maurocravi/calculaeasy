@@ -47,23 +47,29 @@ const surchargeOptions = [
                             min={0}
                         />
 
+                        <Select
+                            label="Moneda"
+                            name="currency"
+                            options={[
+                                { label: "Pesos Uruguayos ($)", value: "UYU" },
+                                { label: "Dólares (U$S)", value: "USD" },
+                            ]}
+                        />
+
+                        <div id="exchange-rate-container" class="hidden">
+                            <InputNumber
+                                label="Cotización Dólar"
+                                name="exchangeRate"
+                                value={40}
+                                min={1}
+                            />
+                        </div>
+
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <InputNumber
                                 label="Horas Mensuales"
                                 name="monthlyHours"
                                 value={192}
-                                Estándar
-                                comercio:
-                                44hs
-                                sem
-                                *
-                                4.33="~190."
-                                192
-                                es
-                                común.
-                                O
-                                200
-                                int.
                                 min={1}
                             />
                             <InputNumber
@@ -155,6 +161,15 @@ const surchargeOptions = [
     const inputNominal = document.querySelector(
         'input[name="monthlyNominal"]',
     ) as HTMLInputElement;
+    const inputCurrency = document.querySelector(
+        'select[name="currency"]',
+    ) as HTMLSelectElement;
+    const inputExchangeRate = document.querySelector(
+        'input[name="exchangeRate"]',
+    ) as HTMLInputElement;
+    const exchangeRateContainer = document.getElementById(
+        "exchange-rate-container",
+    );
     const inputMonthlyHours = document.querySelector(
         'input[name="monthlyHours"]',
     ) as HTMLInputElement;
@@ -169,14 +184,27 @@ const surchargeOptions = [
     const resultHourlyRate = document.getElementById("result-hourly-rate");
     const resultOvertimeRate = document.getElementById("result-overtime-rate");
 
+    function toggleExchangeRate() {
+        if (inputCurrency.value === "USD") {
+            exchangeRateContainer?.classList.remove("hidden");
+        } else {
+            exchangeRateContainer?.classList.add("hidden");
+        }
+        recalculate();
+    }
+
     function recalculate() {
         const monthlyNominal = parseFloat(inputNominal.value) || 0;
+        const currency = (inputCurrency.value as "UYU" | "USD") || "UYU";
+        const exchangeRate = parseFloat(inputExchangeRate.value) || 40;
         const monthlyHours = parseFloat(inputMonthlyHours.value) || 192;
         const overtimeHours = parseFloat(inputOvertimeHours.value) || 0;
         const surchargeRate = parseFloat(selectSurcharge.value) || 1.0;
 
         const result = calculateOvertime({
             monthlyNominal,
+            currency,
+            exchangeRate,
             monthlyHours,
             overtimeHours,
             surchargeRate,
@@ -191,6 +219,8 @@ const surchargeOptions = [
 
     // Listeners
     inputNominal?.addEventListener("input", recalculate);
+    inputCurrency?.addEventListener("change", toggleExchangeRate);
+    inputExchangeRate?.addEventListener("input", recalculate);
     inputMonthlyHours?.addEventListener("input", recalculate);
     inputOvertimeHours?.addEventListener("input", recalculate);
     selectSurcharge?.addEventListener("change", recalculate);

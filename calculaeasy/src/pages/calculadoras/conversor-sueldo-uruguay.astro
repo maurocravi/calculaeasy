@@ -28,16 +28,16 @@ import { formatUYU } from "../../lib/calculations/utils";
             </a>
 
             <CalculatorShell
-                title="Calculadora de Salario Vacacional"
-                description="Calculá cuánto te corresponde de Salario Vacacional líquido según tus días de licencia."
+                title="Conversor de Sueldo"
+                description="Desglosá tu sueldo mensual y calculá cuánto ganás por hora, día, semana y año."
             >
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                     <!-- Form -->
                     <div class="space-y-6">
                         <InputNumber
-                            label="Sueldo Nominal Mensual"
-                            name="monthlyNominal"
-                            placeholder="Ej: 45000"
+                            label="Sueldo Mensual"
+                            name="monthlyAmount"
+                            placeholder="Ej: 50000"
                             min={0}
                         />
 
@@ -61,16 +61,18 @@ import { formatUYU } from "../../lib/calculations/utils";
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <InputNumber
-                                label="Días de Licencia"
-                                name="vacationDays"
-                                value={20}
+                                label="Horas por día"
+                                name="hoursPerDay"
+                                value={8}
                                 min={1}
+                                max={24}
                             />
                             <InputNumber
-                                label="Divisor (Días Mes)"
-                                name="monthDaysDivisor"
-                                value={30}
+                                label="Días por semana"
+                                name="daysPerWeek"
+                                value={5}
                                 min={1}
+                                max={7}
                             />
                         </div>
                     </div>
@@ -85,40 +87,66 @@ import { formatUYU } from "../../lib/calculations/utils";
                             >
                             </div>
 
-                            <div class="relative z-10 space-y-6">
+                            <div
+                                class="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-6"
+                            >
                                 <div>
                                     <p
                                         class="text-indigo-300 text-sm font-medium uppercase tracking-wider mb-1"
                                     >
-                                        Valor Jornal Vacacional
+                                        Por Hora
                                     </p>
                                     <p
-                                        class="text-2xl font-semibold"
+                                        class="text-2xl font-bold"
+                                        id="result-hourly"
+                                    >
+                                        $ 0
+                                    </p>
+                                </div>
+                                <div>
+                                    <p
+                                        class="text-indigo-300 text-sm font-medium uppercase tracking-wider mb-1"
+                                    >
+                                        Por Día (Jornal)
+                                    </p>
+                                    <p
+                                        class="text-2xl font-bold"
                                         id="result-daily"
                                     >
                                         $ 0
                                     </p>
                                 </div>
-
-                                <div class="pt-4 border-t border-indigo-700">
-                                    <p
-                                        class="text-indigo-200 text-sm font-medium uppercase tracking-wider mb-1"
-                                    >
-                                        Total Salario Vacacional (Líquido)
-                                    </p>
-                                    <p
-                                        class="text-4xl sm:text-5xl font-bold"
-                                        id="result-total"
-                                    >
-                                        $ 0
-                                    </p>
-                                    <p
-                                        class="text-indigo-300 text-xs mt-2 opacity-80"
-                                    >
-                                        * Monto neto al bolsillo (el salario
-                                        vacacional no lleva descuentos, salvo
-                                        IRPF si supera el mínimo).
-                                    </p>
+                                <div
+                                    class="sm:col-span-2 border-t border-indigo-700 pt-4"
+                                >
+                                    <div class="grid grid-cols-2 gap-6">
+                                        <div>
+                                            <p
+                                                class="text-indigo-300 text-sm font-medium uppercase tracking-wider mb-1"
+                                            >
+                                                Por Semana
+                                            </p>
+                                            <p
+                                                class="text-2xl font-bold"
+                                                id="result-weekly"
+                                            >
+                                                $ 0
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p
+                                                class="text-indigo-300 text-sm font-medium uppercase tracking-wider mb-1"
+                                            >
+                                                Anual
+                                            </p>
+                                            <p
+                                                class="text-2xl font-bold"
+                                                id="result-yearly"
+                                            >
+                                                $ 0
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -127,10 +155,8 @@ import { formatUYU } from "../../lib/calculations/utils";
                             class="p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm text-blue-800"
                         >
                             <p>
-                                <strong>Nota:</strong> El Salario Vacacional es una
-                                partida 100% líquida (no lleva aportes jubilatorios
-                                ni FONASA). Sin embargo, suma para el cálculo del
-                                IRPF anual.
+                                <strong>Nota:</strong> Cálculo basado en el año promedio
+                                (52 semanas / 12 meses).
                             </p>
                         </div>
                     </div>
@@ -141,11 +167,11 @@ import { formatUYU } from "../../lib/calculations/utils";
 </Layout>
 
 <script>
-    import { calculateVacational } from "../../lib/calculations/uy/salary/vacational";
+    import { convertSalary } from "../../lib/calculations/uy/salary/salaryConverter";
     import { formatUYU } from "../../lib/calculations/utils";
 
-    const inputNominal = document.querySelector(
-        'input[name="monthlyNominal"]',
+    const inputMonthly = document.querySelector(
+        'input[name="monthlyAmount"]',
     ) as HTMLInputElement;
     const inputCurrency = document.querySelector(
         'select[name="currency"]',
@@ -156,15 +182,17 @@ import { formatUYU } from "../../lib/calculations/utils";
     const exchangeRateContainer = document.getElementById(
         "exchange-rate-container",
     );
-    const inputDays = document.querySelector(
-        'input[name="vacationDays"]',
+    const inputHours = document.querySelector(
+        'input[name="hoursPerDay"]',
     ) as HTMLInputElement;
-    const inputDivisor = document.querySelector(
-        'input[name="monthDaysDivisor"]',
+    const inputDays = document.querySelector(
+        'input[name="daysPerWeek"]',
     ) as HTMLInputElement;
 
-    const resultDaily = document.getElementById("result-daily");
-    const resultTotal = document.getElementById("result-total");
+    const resHourly = document.getElementById("result-hourly");
+    const resDaily = document.getElementById("result-daily");
+    const resWeekly = document.getElementById("result-weekly");
+    const resYearly = document.getElementById("result-yearly");
 
     function toggleExchangeRate() {
         if (inputCurrency.value === "USD") {
@@ -176,29 +204,36 @@ import { formatUYU } from "../../lib/calculations/utils";
     }
 
     function recalculate() {
-        const monthlyNominal = parseFloat(inputNominal.value) || 0;
+        const monthlyAmount = parseFloat(inputMonthly.value) || 0;
         const currency = (inputCurrency.value as "UYU" | "USD") || "UYU";
         const exchangeRate = parseFloat(inputExchangeRate.value) || 40;
-        const vacationDays = parseFloat(inputDays.value) || 20;
-        const monthDaysDivisor = parseFloat(inputDivisor.value) || 30;
+        let hoursPerDay = parseFloat(inputHours.value) || 8;
+        let daysPerWeek = parseFloat(inputDays.value) || 5;
 
-        const result = calculateVacational({
-            monthlyNominal,
+        // Force limits logic for calculation
+        if (hoursPerDay > 24) hoursPerDay = 24;
+        if (daysPerWeek > 7) daysPerWeek = 7;
+
+        const result = convertSalary({
+            monthlyAmount,
+            hoursPerDay,
+            daysPerWeek,
+            weeksPerYear: 52,
+            monthsPerYear: 12,
             currency,
             exchangeRate,
-            vacationDays,
-            monthDaysDivisor,
         });
 
-        if (resultDaily) resultDaily.innerText = formatUYU(result.dailyRate);
-        if (resultTotal)
-            resultTotal.innerText = formatUYU(result.vacationalPay);
+        if (resHourly) resHourly.innerText = formatUYU(result.hourly);
+        if (resDaily) resDaily.innerText = formatUYU(result.daily);
+        if (resWeekly) resWeekly.innerText = formatUYU(result.weekly);
+        if (resYearly) resYearly.innerText = formatUYU(result.yearly);
     }
 
     // Listeners
-    inputNominal?.addEventListener("input", recalculate);
+    inputMonthly?.addEventListener("input", recalculate);
     inputCurrency?.addEventListener("change", toggleExchangeRate);
     inputExchangeRate?.addEventListener("input", recalculate);
+    inputHours?.addEventListener("input", recalculate);
     inputDays?.addEventListener("input", recalculate);
-    inputDivisor?.addEventListener("input", recalculate);
 </script>

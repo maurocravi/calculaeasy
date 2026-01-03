@@ -4,8 +4,10 @@ export type VatMode = "add" | "remove";
 
 export type VatInput = {
   mode: VatMode;
-  amount: number;   // monto base o final según modo
+  amount: number;   // monto base o final según modo (en la moneda original)
   rate: number;     // IVA en decimal: 0.22 o 0.10
+  currency: "UYU" | "USD";
+  exchangeRate?: number;
 };
 
 export type VatOutput = {
@@ -15,7 +17,13 @@ export type VatOutput = {
 };
 
 export function calculateVat(input: VatInput): VatOutput {
-  const { mode, amount, rate } = input;
+  const { mode, rate } = input;
+  const exchangeRate = input.exchangeRate || 1;
+  let amount = input.amount;
+
+  if (input.currency === "USD") {
+    amount = amount * exchangeRate;
+  }
 
   if (rate < 0) {
     return { net: 0, vat: 0, gross: 0 };
