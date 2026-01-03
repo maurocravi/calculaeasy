@@ -1,0 +1,333 @@
+✅ Producto: CalculaEasy Uruguay
+Tagline
+
+“Calculadoras simples para sueldo e impuestos en Uruguay.”
+
+Objetivo
+
+Generar tráfico orgánico (SEO) con herramientas evergreen orientadas a:
+
+sueldos (bruto → líquido)
+
+aguinaldo / vacacional
+
+aportes / IRPF (o al menos estimaciones)
+
+IVA/Precio final (complemento)
+
+1) Propuesta de valor (clara y diferenciada)
+
+CalculaEasy es un sitio de calculadoras para Uruguay que:
+
+Resuelve consultas rápidas (lo que la gente googlea)
+
+Explica en lenguaje simple cómo funciona el cálculo
+
+Permite guardar/compartir resultados
+
+Está optimizado para SEO y snippets (FAQ + schema)
+
+Ventaja competitiva: “Uruguay” reduce competencia y aumenta relevancia local.
+
+2) Arquitectura mínima del sitio (simple, pero escalable)
+
+Manteniéndolo liviano, con “pocas páginas” pero muchas landings útiles:
+
+Páginas base (5)
+
+/ (Home, landing)
+
+/calculadoras/ (hub con categorías)
+
+/guias/ (blog minimalista)
+
+/sobre-nosotros/
+
+/contacto/ + privacidad/cookies (para Adsense)
+
+Categorías (solo dentro del hub)
+
+Sueldo
+
+Impuestos
+
+Aportes
+
+Extras laborales
+
+Páginas SEO (tools)
+
+Cada calculadora es una landing fuerte:
+
+/calculadoras/sueldo-liquido-uruguay/
+
+/calculadoras/aguinaldo-uruguay/
+
+etc.
+
+3) MVP inicial (las 5 calculadoras más importantes)
+
+Estas 5 te dan un “sitio útil” y un mapa SEO fuerte:
+
+🔥 MVP #1 — Sueldo líquido (Bruto → Líquido)
+
+/calculadoras/sueldo-liquido-uruguay/
+Keyword principal: “calculadora sueldo líquido uruguay”
+Keywords secundarias: “cuánto cobro en mano uruguay”, “sueldo neto uruguay”
+
+✅ Esta va a ser tu “pilar” de tráfico.
+
+Inputs típicos:
+
+Sueldo nominal mensual
+
+Tipo de trabajador (dependiente / opcional)
+
+Aportes (sí/no) o valores por defecto
+
+Opcional: hijos/cónyuge si vas a estimar deducciones
+
+Outputs:
+
+Sueldo líquido estimado
+
+Detalle de descuentos (aportes / IRPF si aplica)
+
+Porcentaje total de descuento
+
+Nota: Podés arrancar con una versión “estimada” y luego sofisticarla (para no trabarte en la precisión del IRPF).
+
+MVP #2 — Aguinaldo Uruguay
+
+/calculadoras/aguinaldo-uruguay/
+Keyword: “calculadora aguinaldo uruguay”
+Long-tail: “cuánto es el aguinaldo”, “medio aguinaldo uruguay”
+
+Inputs:
+
+sueldo nominal
+
+meses trabajados
+
+¿completo o proporcional?
+
+Outputs:
+
+aguinaldo estimado
+
+explicación + ejemplo
+
+MVP #3 — Salario vacacional
+
+/calculadoras/salario-vacacional-uruguay/
+Keyword: “salario vacacional uruguay” / “calculadora salario vacacional”
+
+Inputs:
+
+sueldo nominal
+
+días de licencia
+
+sueldo diario (auto)
+
+Outputs:
+
+vacacional estimado
+
+MVP #4 — Horas extra (simple)
+
+/calculadoras/horas-extra-uruguay/
+Keyword: “calcular horas extra uruguay”
+
+Inputs:
+
+sueldo nominal
+
+horas extra
+
+recargo (simple: 50% / 100%)
+
+Outputs:
+
+pago extra estimado
+
+MVP #5 — IVA / Precio final (para ampliar tráfico)
+
+/calculadoras/iva-uruguay/
+Keyword: “calculadora iva uruguay”, “precio con iva uruguay”
+
+Inputs:
+
+precio sin IVA
+
+% IVA
+
+Outputs:
+
+precio final
+
+cuánto es IVA
+
+4) Calculadoras fase 2 (cuando el sitio ya esté)
+
+Estas son buenas para seguir escalando sin complicarte demasiado:
+
+IRPF estimado (si te animás; puede ser “aproximado”)
+
+Aportes BPS (estimación)
+
+Ajuste por inflación Uruguay
+
+Indemnización (si aplica por rubro)
+
+Conversor sueldo hora/día/mes
+
+Retenciones / descuentos personalizados (modo avanzado)
+
+5) SEO: mapa de páginas + titles listos
+
+Te dejo un set inicial de 12 páginas (5 tools + 7 guías) para que Google “entienda” el sitio:
+
+Tools (páginas principales)
+
+Sueldo líquido Uruguay
+
+Title: “Calculadora de sueldo líquido en Uruguay (2026)”
+
+Aguinaldo Uruguay
+
+Title: “Calculadora de aguinaldo en Uruguay”
+
+Salario vacacional Uruguay
+
+Title: “Calculadora de salario vacacional en Uruguay”
+
+Horas extra Uruguay
+
+Title: “Calculadora de horas extra en Uruguay”
+
+IVA Uruguay
+
+Title: “Calculadora IVA Uruguay: precio final y desglose”
+
+Guías (posts cortos 900–1500 palabras)
+
+“Cómo se calcula el sueldo líquido en Uruguay”
+
+“Aguinaldo en Uruguay: cómo se calcula y ejemplos”
+
+“Salario vacacional Uruguay: guía simple”
+
+“Qué descuentos tiene el sueldo en Uruguay”
+
+“IRPF en Uruguay explicado fácil” (aunque no tengas la calculadora completa todavía)
+
+“Diferencia entre sueldo nominal y líquido”
+
+“Cómo calcular horas extra y recargos”
+
+👉 Con esto ya tenés una estructura que se interlinkea bien.
+
+6) Copy real para la Home (para pegar tal cual)
+
+Te dejo una versión lista para usar:
+
+Hero (arriba)
+
+Calculadoras fáciles de sueldo e impuestos en Uruguay
+Calculá tu sueldo líquido, aguinaldo, salario vacacional y más.
+Resultados rápidos, explicados en simple y optimizados para Uruguay.
+
+✅ Sueldo líquido (nominal → en mano)
+✅ Aguinaldo y vacacional
+✅ Horas extra y descuentos
+✅ IVA y cálculos rápidos
+
+[Ver calculadoras] [Buscar]
+
+Sección 2 (beneficios)
+
+Hecho para Uruguay
+Las calculadoras están pensadas para las reglas y formatos más comunes en Uruguay.
+
+Resultados claros
+Te mostramos el número final y el desglose del cálculo.
+
+Gratis y rápido
+Sin registro. Sin vueltas.
+
+Sección 3 (top tools)
+
+Calculadora sueldo líquido
+
+Calculadora aguinaldo
+
+Calculadora salario vacacional
+
+Horas extra
+
+IVA
+
+Sección 4 (FAQ home)
+
+¿Qué diferencia hay entre sueldo nominal y líquido?
+
+¿El aguinaldo se calcula sobre el nominal?
+
+¿Qué descuentos tiene el sueldo?
+
+¿Esto reemplaza asesoramiento contable? (respuesta: no, es estimativo)
+
+7) Monetización (Adsense) + buenas prácticas
+
+Para Adsense en sitios de tools:
+
+1 bloque display debajo del resultado
+
+1 bloque dentro de explicación
+
+1 bloque al final de la página
+
+⚠️ Requisitos:
+
+Política de privacidad
+
+Cookies
+
+Contacto visible
+
+About / quiénes somos
+
+Evitar claims tipo “exacto” si la calculadora es estimada
+
+Mejor: “estimación” + aclaraciones
+
+8) Growth y linkbuilding liviano (para Uruguay)
+
+Rápido y efectivo:
+
+Publicar en foros uruguayos / grupos FB empleo
+
+Reddit (r/uruguay)
+
+Comentarios/threads “¿cuánto cobro en mano?”
+
+Directorios de herramientas gratis (hay varios)
+
+Hacer 1–2 posts guest simples en Medium/LinkedIn
+
+9) Roadmap (30 y 60 días)
+30 días
+
+✅ 5 calculadoras + 7 guías
+✅ Buen interlinking
+✅ Search Console + Sitemap + schema FAQ
+✅ Empezar indexación y primeras posiciones
+
+60 días
+
+✅ 10 calculadoras
+✅ 20 guías
+✅ IRPF estimado (si te da)
+✅ Actualizaciones de 2026 y “labels” en títulos
+✅ Optimización para snippets (FAQ, tablas, definiciones)

@@ -1,0 +1,60 @@
+---
+const faqs = [
+    {
+        question: "¿Qué diferencia hay entre sueldo nominal y líquido?",
+        answer: "El sueldo nominal es lo que figura en tu contrato antes de descuentos. El líquido (o 'en mano') es lo que realmente cobrás después de restar los aportes al BPS, FONASA e IRPF.",
+    },
+    {
+        question: "¿El aguinaldo se calcula sobre el nominal?",
+        answer: "Sí, se calcula sumando todas las partidas nominales (sueldo, horas extras, comisiones, etc.) cobradas en el semestre y dividiéndolas entre 12.",
+    },
+    {
+        question: "¿Qué descuentos tiene el sueldo?",
+        answer: "Los descuentos obligatorios básicos son: Aporte Jubilatorio (15%), FONASA (que varía entre 3% y 8% según tu situación familiar y sueldo) y FRL (0.10%). Si corresponde, también se descuenta IRPF.",
+    },
+    {
+        question: "¿Esto reemplaza asesoramiento contable?",
+        answer: "No, es estimativo. Estas calculadoras sirven para tener una referencia muy aproximada, pero pueden existir particularidades en tu rubro (Laudos, convenios específicos) que aquí no se contemplan.",
+    },
+];
+---
+
+<section class="py-20 bg-white border-t border-slate-100">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
+                Preguntas frecuentes
+            </h2>
+        </div>
+
+        <div class="space-y-4">
+            {
+                faqs.map((faq) => (
+                    <details class="group bg-slate-50 rounded-2xl open:bg-white open:shadow-lg open:shadow-indigo-50/50 transition-all duration-300">
+                        <summary class="flex justify-between items-center font-medium cursor-pointer list-none py-5 px-6 text-lg text-slate-800">
+                            <span>{faq.question}</span>
+                            <span class="transition group-open:rotate-180">
+                                <svg
+                                    fill="none"
+                                    height="24"
+                                    shape-rendering="geometricPrecision"
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="1.5"
+                                    viewBox="0 0 24 24"
+                                    width="24"
+                                >
+                                    <path d="M6 9l6 6 6-6" />
+                                </svg>
+                            </span>
+                        </summary>
+                        <div class="text-slate-600 px-6 pb-6 pt-0 animate-fadeIn leading-relaxed">
+                            {faq.answer}
+                        </div>
+                    </details>
+                ))
+            }
+        </div>
+    </div>
+</section>

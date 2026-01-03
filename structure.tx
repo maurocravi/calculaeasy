@@ -1,0 +1,26 @@
+src/
+  pages/
+    calculadoras/
+      sueldo-liquido-uruguay.astro
+  components/
+    layout/
+      BaseLayout.astro
+      SeoHead.astro
+    calculators/
+      CalculatorShell.astro
+      InputNumber.astro
+      Select.astro
+      ResultCard.astro
+      FAQ.astro
+  lib/
+    calculations/
+      uy/
+        salary/
+          netSalary.ts
+          contributions.ts
+        irpf/
+          tables-2026.ts
+          irpf.ts
+        utils.ts
+    seo/
+      faqSchema.ts
