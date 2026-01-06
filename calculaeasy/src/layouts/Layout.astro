@@ -1,5 +1,21 @@
 ---
 import "../styles/global.css";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+
+interface Props {
+	title?: string;
+	description?: string;
+	canonical?: string;
+	schema?: object;
+}
+
+const {
+	title = "CalculaEasy - Calculadoras de Sueldo e Impuestos Uruguay",
+	description = "Calculá tu sueldo líquido, aguinaldo, IVA y más. Herramientas gratuitas para trabajadores en Uruguay.",
+	canonical = "https://calculaeasy.com/",
+	schema,
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -9,9 +25,17 @@ import "../styles/global.css";
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<title>
-			CalculaEasy - Calculadoras de Sueldo e Impuestos en Uruguay
-		</title>
+		{
+			schema && (
+				<script
+					type="application/ld+json"
+					set:html={JSON.stringify(schema)}
+				/>
+			)
+		}
+		<title>{title}</title>
+		<meta name="description" content={description} />
+		<link rel="canonical" href={canonical} />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
@@ -22,7 +46,9 @@ import "../styles/global.css";
 	<body
 		class="bg-slate-50 text-slate-900 font-['Outfit'] antialiased selection:bg-indigo-100 selection:text-indigo-900"
 	>
+		<Header />
 		<slot />
+		<Footer />
 	</body>
 </html>
 

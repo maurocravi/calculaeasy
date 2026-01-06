@@ -3,7 +3,22 @@ import Layout from "../../layouts/Layout.astro";
 import CalculatorShell from "../../components/calculators/CalculatorShell.astro";
 import InputNumber from "../../components/calculators/InputNumber.astro";
 import Select from "../../components/calculators/Select.astro";
+import RelatedTools from "../../components/RelatedTools.astro";
+import ToolContent from "../../components/ToolContent.astro";
 import { formatUYU } from "../../lib/calculations/utils";
+import { breadcrumbSchema } from "../../lib/seo/breadcrumbSchema";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+
+const breadcrumbs = [
+    { name: "Inicio", url: "https://calculaeasy.com" },
+    { name: "Calculadoras", url: "https://calculaeasy.com" },
+    {
+        name: "Horas Extra",
+        url: "https://calculaeasy.com/calculadoras/horas-extra-uruguay",
+    },
+];
+
+const schema = breadcrumbSchema(breadcrumbs);
 
 const surchargeOptions = [
     { label: "Hora Extra Simple (100%)", value: 1.0 }, // Recargo del 100% (vale el doble)
@@ -12,26 +27,15 @@ const surchargeOptions = [
 ];
 ---
 
-<Layout>
+<Layout
+    title="Calcular Horas Extra Uruguay - CalculaEasy"
+    description="Calculadora de Horas Extra en Uruguay. Calculá el valor de tus horas simples, dobles y feriados."
+    canonical="https://calculaeasy.com/calculadoras/horas-extra-uruguay"
+    schema={schema}
+>
     <div class="bg-indigo-50 min-h-screen py-12">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-            <a
-                href="/"
-                class="inline-flex items-center text-indigo-600 font-medium mb-8 hover:text-indigo-800 transition-colors"
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 mr-2"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                >
-                    <path
-                        fill-rule="evenodd"
-                        d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-                        clip-rule="evenodd"></path>
-                </svg>
-                Volver al inicio
-            </a>
+            <Breadcrumbs items={breadcrumbs} />
 
             <CalculatorShell
                 title="Calculadora de Horas Extra"
@@ -150,6 +154,8 @@ const surchargeOptions = [
                     </div>
                 </div>
             </CalculatorShell>
+            <ToolContent toolId="horas-extra-uruguay" />
+            <RelatedTools currentTool="horas-extra-uruguay" />
         </div>
     </div>
 </Layout>

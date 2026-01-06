@@ -3,29 +3,33 @@ import Layout from "../../layouts/Layout.astro";
 import CalculatorShell from "../../components/calculators/CalculatorShell.astro";
 import InputNumber from "../../components/calculators/InputNumber.astro";
 import Select from "../../components/calculators/Select.astro";
+import RelatedTools from "../../components/RelatedTools.astro";
+import ToolContent from "../../components/ToolContent.astro";
 import { formatUYU } from "../../lib/calculations/utils";
+import { breadcrumbSchema } from "../../lib/seo/breadcrumbSchema";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+
+const breadcrumbs = [
+    { name: "Inicio", url: "https://calculaeasy.com" },
+    { name: "Calculadoras", url: "https://calculaeasy.com" },
+    {
+        name: "Salario Vacacional",
+        url: "https://calculaeasy.com/calculadoras/salario-vacacional-uruguay",
+    },
+];
+
+const schema = breadcrumbSchema(breadcrumbs);
 ---
 
-<Layout>
+<Layout
+    title="Calcular Salario Vacacional Uruguay - CalculaEasy"
+    description="Calculadora de Salario Vacacional en Uruguay. Aprendé cómo se calcula y cuánto te corresponde."
+    canonical="https://calculaeasy.com/calculadoras/salario-vacacional-uruguay"
+    schema={schema}
+>
     <div class="bg-indigo-50 min-h-screen py-12">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-            <a
-                href="/"
-                class="inline-flex items-center text-indigo-600 font-medium mb-8 hover:text-indigo-800 transition-colors"
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 mr-2"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                >
-                    <path
-                        fill-rule="evenodd"
-                        d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-                        clip-rule="evenodd"></path>
-                </svg>
-                Volver al inicio
-            </a>
+            <Breadcrumbs items={breadcrumbs} />
 
             <CalculatorShell
                 title="Calculadora de Salario Vacacional"
@@ -100,7 +104,7 @@ import { formatUYU } from "../../lib/calculations/utils";
                                     </p>
                                 </div>
 
-                                <div class="pt-4 border-t border-indigo-700">
+                                <div class="pt-4 border-t border-indigo-200/50">
                                     <p
                                         class="text-indigo-200 text-sm font-medium uppercase tracking-wider mb-1"
                                     >
@@ -136,6 +140,8 @@ import { formatUYU } from "../../lib/calculations/utils";
                     </div>
                 </div>
             </CalculatorShell>
+            <ToolContent toolId="salario-vacacional-uruguay" />
+            <RelatedTools currentTool="salario-vacacional-uruguay" />
         </div>
     </div>
 </Layout>

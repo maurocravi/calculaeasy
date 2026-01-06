@@ -1,0 +1,110 @@
+---
+import { toolContent, type ToolContentId } from "../config/toolContent";
+
+interface Props {
+    toolId: ToolContentId;
+}
+
+const { toolId } = Astro.props;
+const content = toolContent[toolId];
+
+// Generate FAQ Schema for SEO
+const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: content.faqs.map((faq) => ({
+        "@type": "Question",
+        name: faq.question,
+        acceptedAnswer: {
+            "@type": "Answer",
+            text: faq.answer,
+        },
+    })),
+};
+---
+
+<section class="max-w-4xl mx-auto mt-12 mb-16 px-4 sm:px-6 lg:px-8">
+    <!-- How It Works Section -->
+    <div class="mb-12">
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-4">
+            {content.howItWorks.title}
+        </h2>
+        <div
+            class="prose prose-slate max-w-none text-slate-700 leading-relaxed"
+            set:html={content.howItWorks.content}
+        />
+    </div>
+
+    <!-- Example Section -->
+    <div class="mb-12">
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-4">
+            {content.example.title}
+        </h2>
+        <div
+            class="prose prose-slate max-w-none text-slate-700 leading-relaxed"
+            set:html={content.example.content}
+        />
+    </div>
+
+    <!-- FAQs Section -->
+    <div>
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-6">
+            Preguntas frecuentes
+        </h2>
+        <div class="space-y-4">
+            {
+                content.faqs.map((faq) => (
+                    <details class="group bg-slate-50 rounded-2xl open:bg-white open:shadow-lg open:shadow-indigo-50/50 transition-all duration-300">
+                        <summary class="flex justify-between items-center font-medium cursor-pointer list-none py-5 px-6 text-lg text-slate-800">
+                            <span>{faq.question}</span>
+                            <span class="transition group-open:rotate-180">
+                                <svg
+                                    fill="none"
+                                    height="24"
+                                    shape-rendering="geometricPrecision"
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="1.5"
+                                    viewBox="0 0 24 24"
+                                    width="24"
+                                >
+                                    <path d="M6 9l6 6 6-6" />
+                                </svg>
+                            </span>
+                        </summary>
+                        <div class="text-slate-600 px-6 pb-6 pt-0 animate-fadeIn leading-relaxed">
+                            {faq.answer}
+                        </div>
+                    </details>
+                ))
+            }
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Schema for SEO -->
+<script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+
+<style>
+    /* Ensure prose styles work well with our content */
+    .prose :where(p):not(:where([class~="not-prose"] *)) {
+        margin-top: 0;
+        margin-bottom: 1rem;
+    }
+
+    .prose :where(ul):not(:where([class~="not-prose"] *)) {
+        margin-top: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .prose :where(li):not(:where([class~="not-prose"] *)) {
+        margin-top: 0.25rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .prose :where(strong):not(:where([class~="not-prose"] *)) {
+        color: rgb(15 23 42); /* slate-900 */
+        font-weight: 600;
+    }
+</style>

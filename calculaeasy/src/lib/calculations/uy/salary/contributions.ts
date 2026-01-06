@@ -1,9 +1,15 @@
 import { round2 } from "../../utils";
+import { fonasaRate2025 } from "../fonasa/fonasa-2025";
 
 export type ContributionRates = {
   retirementRate: number; // montepío
-  fonasaRate: number;
-  frlRate: number;        // fondo reconversión laboral
+  frlRate: number;        // reconversión laboral
+};
+
+export type ContributionInput = {
+  nominalUYU: number;
+  hasChildren: boolean;
+  spouseWithoutSNIS: boolean;
 };
 
 export type Contributions = {
@@ -11,14 +17,26 @@ export type Contributions = {
   fonasa: number;
   frl: number;
   total: number;
+  fonasaRateUsed: number;
 };
 
-export function calculateContributions(nominalUYU: number, rates: ContributionRates): Contributions {
-  const retirement = round2(nominalUYU * rates.retirementRate);
-  const fonasa = round2(nominalUYU * rates.fonasaRate);
-  const frl = round2(nominalUYU * rates.frlRate);
+export function calculateContributions(
+  input: ContributionInput,
+  rates: ContributionRates
+): Contributions {
+  const retirement = round2(input.nominalUYU * rates.retirementRate);
+
+  const fonasaRateUsed = fonasaRate2025({
+    nominalUYU: input.nominalUYU,
+    hasChildren: input.hasChildren,
+    spouseWithoutSNIS: input.spouseWithoutSNIS,
+  });
+
+  const fonasa = round2(input.nominalUYU * fonasaRateUsed);
+  const frl = round2(input.nominalUYU * rates.frlRate);
 
   const total = round2(retirement + fonasa + frl);
 
-  return { retirement, fonasa, frl, total };
+  return { retirement, fonasa, frl, total, fonasaRateUsed };
 }
+

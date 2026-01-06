@@ -1,16 +1,18 @@
 import { calculateContributions, type ContributionRates } from "./contributions";
 import { calculateIrpf } from "../irpf/irpf";
-import type { IrpfConfig } from "../irpf/tables-2026";
+import type { IrpfConfig } from "../irpf/tables-2025";
 import { round2 } from "../../utils";
 
 export type NetSalaryInput = {
   nominalMonthly: number;
   currency: "UYU" | "USD";
-  exchangeRate: number;   // UYU por USD (default 40)
-  year: 2026;
-  childrenCount: number;  // 0 por ahora
-  hasSpouse: boolean;     // false por ahora
+  exchangeRate: number;
+  year: number;
+
+  hasChildren: boolean;      // For FONASA
+  spouseWithoutSNIS: boolean; // For FONASA
 };
+
 
 export type NetSalaryBreakdown = {
   nominalUYU: number;
@@ -19,13 +21,17 @@ export type NetSalaryBreakdown = {
     fonasa: number;
     frl: number;
     total: number;
+    fonasaRateUsed: number;
   };
+
   taxableBaseUYU: number;
   irpf: {
-    deductions: number;
-    taxableAfterDeductions: number;
-    amount: number;
+    gross: number;
+    generalDeductionRate: number;
+    generalDeductionAmount: number;
+    amount: number; // neto
   };
+
   totalDiscounts: number;
   netUYU: number;
   effectiveDiscountRate: number;
@@ -42,21 +48,29 @@ export function calculateNetSalary(
       ? round2(input.nominalMonthly * input.exchangeRate)
       : round2(input.nominalMonthly);
 
-  const contributions = calculateContributions(nominalUYU, contributionRates);
+  const contributions = calculateContributions(
+    {
+      nominalUYU,
+      hasChildren: input.hasChildren,
+      spouseWithoutSNIS: input.spouseWithoutSNIS,
+    },
+    contributionRates
+  );
+
 
   // Base imponible aproximada:
   const taxableBaseUYU = Math.max(0, nominalUYU - contributions.total);
 
-  const irpf = calculateIrpf(
-    {
-      taxableBaseUYU,
-      childrenCount: input.childrenCount,
-      hasSpouse: input.hasSpouse,
-    },
-    irpfConfig
-  );
+const irpf = calculateIrpf(
+  {
+    taxableBaseUYU,
+    nominalUYU,
+  },
+  irpfConfig
+);
 
-  const totalDiscounts = round2(contributions.total + irpf.irpf);
+
+  const totalDiscounts = round2(contributions.total + irpf.irpfNet);
   const netUYU = round2(nominalUYU - totalDiscounts);
   const effectiveDiscountRate = nominalUYU > 0 ? totalDiscounts / nominalUYU : 0;
 
@@ -65,10 +79,12 @@ export function calculateNetSalary(
     contributions,
     taxableBaseUYU: round2(taxableBaseUYU),
     irpf: {
-      deductions: irpf.deductions,
-      taxableAfterDeductions: irpf.taxableAfterDeductions,
-      amount: irpf.irpf,
+      gross: irpf.irpfGross,
+      generalDeductionRate: irpf.generalDeductionRate,
+      generalDeductionAmount: irpf.generalDeductionAmount,
+      amount: irpf.irpfNet,
     },
+
     totalDiscounts,
     netUYU,
     effectiveDiscountRate,

@@ -3,7 +3,22 @@ import Layout from "../../layouts/Layout.astro";
 import CalculatorShell from "../../components/calculators/CalculatorShell.astro";
 import InputNumber from "../../components/calculators/InputNumber.astro";
 import Select from "../../components/calculators/Select.astro";
+import RelatedTools from "../../components/RelatedTools.astro";
+import ToolContent from "../../components/ToolContent.astro";
 import { formatUYU } from "../../lib/calculations/utils";
+import { breadcrumbSchema } from "../../lib/seo/breadcrumbSchema";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+
+const breadcrumbs = [
+    { name: "Inicio", url: "https://calculaeasy.com" },
+    { name: "Calculadoras", url: "https://calculaeasy.com" },
+    {
+        name: "Aguinaldo",
+        url: "https://calculaeasy.com/calculadoras/aguinaldo-uruguay",
+    },
+];
+
+const schema = breadcrumbSchema(breadcrumbs);
 
 const monthsOptions = [
     { label: "1 Mes", value: 1 },
@@ -15,26 +30,15 @@ const monthsOptions = [
 ];
 ---
 
-<Layout>
+<Layout
+    title="Calcular Aguinaldo Uruguay 2024 - CalculaEasy"
+    description="Calculadora de Aguinaldo en Uruguay. Calculá cuánto te corresponde cobrar de sueldo anual complementario."
+    canonical="https://calculaeasy.com/calculadoras/aguinaldo-uruguay"
+    schema={schema}
+>
     <div class="bg-indigo-50 min-h-screen py-12">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-            <a
-                href="/"
-                class="inline-flex items-center text-indigo-600 font-medium mb-8 hover:text-indigo-800 transition-colors"
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 mr-2"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                >
-                    <path
-                        fill-rule="evenodd"
-                        d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-                        clip-rule="evenodd"></path>
-                </svg>
-                Volver al inicio
-            </a>
+            <Breadcrumbs items={breadcrumbs} />
 
             <CalculatorShell
                 title="Calculadora de Aguinaldo"
@@ -162,6 +166,8 @@ const monthsOptions = [
                     </div>
                 </div>
             </CalculatorShell>
+            <ToolContent toolId="aguinaldo-uruguay" />
+            <RelatedTools currentTool="aguinaldo-uruguay" />
         </div>
     </div>
 </Layout>
