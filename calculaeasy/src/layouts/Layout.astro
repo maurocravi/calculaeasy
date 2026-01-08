@@ -23,7 +23,6 @@ const {
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		{
 			schema && (
@@ -42,7 +41,15 @@ const {
 			href="https://fonts.googleapis.com/css2?family=Outfit:wght@300..800&display=swap"
 			rel="stylesheet"
 		/>
+
+		<!-- FAVICONS -->
+
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+		<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
 	</head>
+
+
 	<body
 		class="bg-slate-50 text-slate-900 font-['Outfit'] antialiased selection:bg-indigo-100 selection:text-indigo-900"
 	>

@@ -3,6 +3,7 @@ import Layout from "../../layouts/Layout.astro";
 import CalculatorShell from "../../components/calculators/CalculatorShell.astro";
 import InputNumber from "../../components/calculators/InputNumber.astro";
 import Select from "../../components/calculators/Select.astro";
+import CurrencyToggle from "../../components/calculators/CurrencyToggle.astro";
 import RelatedTools from "../../components/RelatedTools.astro";
 import ToolContent from "../../components/ToolContent.astro";
 import { formatUYU } from "../../lib/calculations/utils";
@@ -10,11 +11,11 @@ import { breadcrumbSchema } from "../../lib/seo/breadcrumbSchema";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
 
 const breadcrumbs = [
-    { name: "Inicio", url: "https://calculaeasy.com" },
-    { name: "Calculadoras", url: "https://calculaeasy.com" },
+    { name: "Inicio", url: "/" },
+    { name: "Calculadoras", url: "/calculadoras" },
     {
         name: "Salario Vacacional",
-        url: "https://calculaeasy.com/calculadoras/salario-vacacional-uruguay",
+        url: "/calculadoras/salario-vacacional-uruguay",
     },
 ];
 
@@ -45,14 +46,7 @@ const schema = breadcrumbSchema(breadcrumbs);
                             min={0}
                         />
 
-                        <Select
-                            label="Moneda"
-                            name="currency"
-                            options={[
-                                { label: "Pesos Uruguayos ($)", value: "UYU" },
-                                { label: "Dólares (U$S)", value: "USD" },
-                            ]}
-                        />
+                        <CurrencyToggle label="Moneda" name="currency" />
 
                         <div id="exchange-rate-container" class="hidden">
                             <InputNumber

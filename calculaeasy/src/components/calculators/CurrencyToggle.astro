@@ -1,0 +1,144 @@
+---
+interface Props {
+    name?: string;
+    label?: string;
+}
+
+const { name = "currency", label = "Moneda" } = Astro.props;
+---
+
+<div class="mb-6 currency-toggle-component">
+    <label class="block text-sm font-semibold text-slate-700 mb-2">
+        {label}
+    </label>
+    <div class="relative">
+        <!-- Hidden select for form submission and script compatibility -->
+        <select name={name} class="hidden">
+            <option value="UYU" selected>UYU</option>
+            <option value="USD">USD</option>
+        </select>
+
+        <!-- Visual Toggle -->
+        <div
+            class="bg-slate-100 p-1 rounded-xl inline-flex relative w-full sm:w-auto"
+        >
+            <!-- Sliding background pill -->
+            <div
+                class="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-white rounded-lg shadow-sm transition-all duration-200 ease-out transform translate-x-0"
+                id={`slider-${name}`}
+            >
+            </div>
+
+            <button
+                type="button"
+                class="relative z-10 w-1/2 sm:w-40 px-4 py-3 text-sm font-medium text-slate-900 focus:outline-none rounded-lg transition-colors duration-200 cursor-pointer"
+                data-value="UYU"
+            >
+                Pesos ($)
+            </button>
+            <button
+                type="button"
+                class="relative z-10 w-1/2 sm:w-40 px-4 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 rounded-lg transition-colors duration-200 cursor-pointer"
+                data-value="USD"
+            >
+                Dólares (U$S)
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize all currency toggles on the page
+    function initCurrencyToggles() {
+        const components = document.querySelectorAll(
+            ".currency-toggle-component",
+        );
+
+        components.forEach((component) => {
+            const select = component.querySelector(
+                "select",
+            ) as HTMLSelectElement;
+            const buttons = component.querySelectorAll("button");
+            const slider = component.querySelector(
+                "[id^='slider-']",
+            ) as HTMLDivElement;
+
+            if (!select || !buttons.length || !slider) return;
+
+            const updateUI = (value: string) => {
+                // Update slider position
+                if (value === "UYU") {
+                    slider.style.transform = "translateX(0)";
+                } else {
+                    slider.style.transform = "translateX(100%)";
+                    // We need to account for the gap/padding.
+                    // Since it's calc(50%-4px) width and left-1 (4px),
+                    // 100% translation moves it by its own width. Perfect if container is tight.
+                    // Container has p-1.
+                    // Let's rely on percentage translation which is relative to the element itself.
+                    // Element width is roughly 50% of container. Moving 100% + some margin?
+                    // Actually, let's use a class based approach for cleaner toggling if possible,
+                    // or just simple JS translation logic.
+                    // The element width is calc(50% - 4px).
+                    // We want to move it to the right side.
+                    // Total width = 100%.
+                    // Left position = 4px (0.25rem).
+                    // Right position = 100% - width - 4px.
+                    // 100% - (50% - 4px) - 4px = 50% + 4px - 4px = 50%.
+                    // So translating by 100% of its own width (which is slightly less than 50% of container)
+                    // plus the gap adjustment.
+                    // Let's actually use `left` property or simpler: `w-1/2` buttons and absolute div.
+                    // Getting perfect independent pixel animation can be tricky with percentages.
+                    // Let's try simple class toggling.
+
+                    slider.style.transform = "translateX(100%)";
+                }
+
+                // Update Text Colors
+                buttons.forEach((btn) => {
+                    const btnValue = btn.dataset.value;
+                    if (btnValue === value) {
+                        btn.classList.add("text-slate-900");
+                        btn.classList.remove("text-slate-500");
+                    } else {
+                        btn.classList.remove("text-slate-900");
+                        btn.classList.add("text-slate-500");
+                    }
+                });
+            };
+
+            // Handle clicks
+            buttons.forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    const value = btn.dataset.value;
+                    if (!value || select.value === value) return;
+
+                    // Update underlying select
+                    select.value = value;
+
+                    // Update UI
+                    updateUI(value);
+
+                    // Dispatch change event so other scripts know
+                    select.dispatchEvent(
+                        new Event("change", { bubbles: true }),
+                    );
+                });
+            });
+
+            // Handle external changes to the select (if any)
+            select.addEventListener("change", () => {
+                updateUI(select.value);
+            });
+
+            // Init UI
+            updateUI(select.value);
+        });
+    }
+
+    // Run on load
+    initCurrencyToggles();
+
+    // Run on view transitions if enabled
+    document.addEventListener("astro:page-load", initCurrencyToggles);
+</script>

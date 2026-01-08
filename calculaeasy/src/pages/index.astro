@@ -4,10 +4,10 @@ import Hero from "../components/Hero.astro";
 import Benefits from "../components/Benefits.astro";
 import TopTools from "../components/TopTools.astro";
 import FAQ from "../components/FAQ.astro";
-import { organizationSchema } from "../lib/seo/websiteSchema";
+import { siteSchema } from "../lib/seo/websiteSchema";
 ---
 
-<Layout schema={organizationSchema}>
+<Layout schema={siteSchema}>
 	<main>
 		<Hero />
 		<Benefits />

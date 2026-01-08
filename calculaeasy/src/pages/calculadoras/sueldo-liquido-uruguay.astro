@@ -3,6 +3,8 @@ import Layout from "../../layouts/Layout.astro";
 import CalculatorShell from "../../components/calculators/CalculatorShell.astro";
 import InputNumber from "../../components/calculators/InputNumber.astro";
 import Select from "../../components/calculators/Select.astro";
+import CurrencyToggle from "../../components/calculators/CurrencyToggle.astro";
+import BinaryToggle from "../../components/calculators/BinaryToggle.astro";
 import ResultCard from "../../components/calculators/ResultCard.astro";
 import RelatedTools from "../../components/RelatedTools.astro";
 import ToolContent from "../../components/ToolContent.astro";
@@ -11,11 +13,11 @@ import { breadcrumbSchema } from "../../lib/seo/breadcrumbSchema";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
 
 const breadcrumbs = [
-    { name: "Inicio", url: "https://calculaeasy.com" },
-    { name: "Calculadoras", url: "https://calculaeasy.com" },
+    { name: "Inicio", url: "/" },
+    { name: "Calculadoras", url: "/calculadoras" },
     {
         name: "Sueldo Líquido",
-        url: "https://calculaeasy.com/calculadoras/sueldo-liquido-uruguay",
+        url: "/calculadoras/sueldo-liquido-uruguay",
     },
 ];
 
@@ -47,17 +49,7 @@ const schema = breadcrumbSchema(breadcrumbs);
                                 min={0}
                             />
 
-                            <Select
-                                label="Moneda"
-                                name="currency"
-                                options={[
-                                    {
-                                        label: "Pesos Uruguayos ($)",
-                                        value: "UYU",
-                                    },
-                                    { label: "Dólares (U$S)", value: "USD" },
-                                ]}
-                            />
+                            <CurrencyToggle label="Moneda" name="currency" />
 
                             <div id="exchange-rate-container" class="hidden">
                                 <InputNumber
@@ -68,28 +60,40 @@ const schema = breadcrumbSchema(breadcrumbs);
                                 />
                             </div>
 
-                            <Select
-                                label="Hijos a cargo (menores/discap)"
+                            <BinaryToggle
+                                label="Hijos a cargo"
                                 name="children"
                                 options={[
-                                    { label: "0", value: 0 },
-                                    { label: "1", value: 1 },
-                                    { label: "2", value: 2 },
-                                    { label: "3+", value: 3 },
+                                    { label: "No", value: 0 },
+                                    { label: "Sí", value: 1 },
                                 ]}
                             />
 
-                            <Select
-                                label="¿Cónyuge/Concubino sin SNIS?"
-                                name="spouseWithoutSNIS"
+                            <BinaryToggle
+                                label="¿Tenés cónyuge/concubino?"
+                                name="hasSpouse"
                                 options={[
-                                    {
-                                        label: "No (Tiene cobertura propia)",
-                                        value: 0,
-                                    },
-                                    { label: "Sí (Sin cobertura)", value: 1 },
+                                    { label: "No", value: 0 },
+                                    { label: "Sí", value: 1 },
                                 ]}
                             />
+
+                            <div id="spouse-options-container" class="hidden">
+                                <Select
+                                    label="¿Cónyuge/Concubino sin SNIS?"
+                                    name="spouseWithoutSNIS"
+                                    options={[
+                                        {
+                                            label: "No (Tiene cobertura propia)",
+                                            value: 0,
+                                        },
+                                        {
+                                            label: "Sí (Sin cobertura)",
+                                            value: 1,
+                                        },
+                                    ]}
+                                />
+                            </div>
                         </div>
                     </div>
 
@@ -143,6 +147,12 @@ const schema = breadcrumbSchema(breadcrumbs);
     const childrenSelect = document.querySelector(
         'select[name="children"]',
     ) as HTMLSelectElement;
+    const hasSpouseSelect = document.querySelector(
+        'select[name="hasSpouse"]',
+    ) as HTMLSelectElement;
+    const spouseOptionsContainer = document.getElementById(
+        "spouse-options-container",
+    );
     const spouseSnisSelect = document.querySelector(
         'select[name="spouseWithoutSNIS"]',
     ) as HTMLSelectElement;
@@ -171,15 +181,27 @@ const schema = breadcrumbSchema(breadcrumbs);
         }
     }
 
+    function toggleSpouseOptions() {
+        if (hasSpouseSelect.value === "1") {
+            spouseOptionsContainer?.classList.remove("hidden");
+        } else {
+            spouseOptionsContainer?.classList.add("hidden");
+        }
+    }
+
     // Parse URL params for initial state
     const url = new URL(window.location.href);
     if (url.searchParams.get("children")) {
+        const childParam = url.searchParams.get("children");
         // Map simple yes/no from older links or explicit count
         // MVP: if URL says yes, set to 1, if explicit number use it
-        const childParam = url.searchParams.get("children");
-        if (childParam === "yes") childrenSelect.value = "1";
-        else if (!isNaN(Number(childParam)))
+        if (childParam === "yes") {
+            childrenSelect.value = "1";
+            childrenSelect.dispatchEvent(new Event("change"));
+        } else if (!isNaN(Number(childParam))) {
             childrenSelect.value = childParam || "0";
+            childrenSelect.dispatchEvent(new Event("change"));
+        }
     }
     if (url.searchParams.get("spouse")) {
         // Spouse param ignored as "Spouse Charge" is removed.
@@ -191,7 +213,10 @@ const schema = breadcrumbSchema(breadcrumbs);
         const currency = currencySelect.value as "UYU" | "USD";
         const exchangeRate = parseFloat(exchangeRateInput.value) || 40;
         const childrenCount = parseInt(childrenSelect.value) || 0;
-        const spouseWithoutSNIS = parseInt(spouseSnisSelect.value) === 1;
+        const hasSpouse = parseInt(hasSpouseSelect.value) === 1;
+        // Sólo consideramos si tiene SNIS si efectivamente tiene cónyuge
+        const spouseWithoutSNIS =
+            hasSpouse && parseInt(spouseSnisSelect.value) === 1;
         const hasChildren = childrenCount > 0;
 
         const result = calculateNetSalary(
@@ -244,9 +269,14 @@ const schema = breadcrumbSchema(breadcrumbs);
     });
     exchangeRateInput?.addEventListener("input", recalculate);
     childrenSelect?.addEventListener("change", recalculate);
+    hasSpouseSelect?.addEventListener("change", () => {
+        toggleSpouseOptions();
+        recalculate();
+    });
     spouseSnisSelect?.addEventListener("change", recalculate);
 
     // Initial calculation
     toggleExchangeRate();
+    toggleSpouseOptions();
     recalculate();
 </script>
