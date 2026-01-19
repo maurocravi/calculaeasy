@@ -11,7 +11,8 @@ export type ToolId =
     | "aguinaldo-uruguay"
     | "conversor-sueldo-uruguay"
     | "horas-extra-uruguay"
-    | "salario-vacacional-uruguay";
+    | "salario-vacacional-uruguay"
+    | "indemnizacion-despido-uruguay";
 
 export const relatedTools: Record<ToolId, RelatedTool[]> = {
     "iva-uruguay": [
@@ -132,6 +133,26 @@ export const relatedTools: Record<ToolId, RelatedTool[]> = {
             url: "/calculadoras/conversor-sueldo-uruguay",
             description: "Convertí tu sueldo mensual a hora, día, semana y año",
             icon: "/ilustraciones/conversor.svg",
+        },
+    ],
+    "indemnizacion-despido-uruguay": [
+        {
+            title: "Calculadora de Sueldo Líquido",
+            url: "/calculadoras/sueldo-liquido-uruguay",
+            description: "Pasá de nominal a lo que te llega al bolsillo",
+            icon: "/ilustraciones/sueldo.svg",
+        },
+        {
+            title: "Calculadora de Aguinaldo",
+            url: "/calculadoras/aguinaldo-uruguay",
+            description: "Estimá cuánto vas a cobrar en junio o diciembre",
+            icon: "/ilustraciones/aguinaldo.svg",
+        },
+        {
+            title: "Calculadora de Salario Vacacional",
+            url: "/calculadoras/salario-vacacional-uruguay",
+            description: "Para planificar mejor tu descanso",
+            icon: "/ilustraciones/vacacional.svg",
         },
     ],
 };

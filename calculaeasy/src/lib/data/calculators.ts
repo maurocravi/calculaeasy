@@ -48,6 +48,13 @@ export const calculators: Calculator[] = [
         url: "/calculadoras/iva-uruguay",
         keywords: ["iva", "impuesto", "valor", "agregado", "22", "10", "basico", "minimo", "sin iva", "con iva", "descontar iva", "agregar iva", "precio final", "neto"],
         description: "Calculá el IVA de tus compras o ventas"
+    },
+    {
+        id: "indemnizacion-despido-uruguay",
+        name: "Indemnización por Despido",
+        url: "/calculadoras/indemnizacion-despido-uruguay",
+        keywords: ["indemnizacion", "indemnización", "despido", "antigüedad", "salario", "meses", "años", "tope", "liquidacion", "liquidación", "cesantia", "despido comun", "indemnización despido", "finiquito", "antiguedad", "antigüedad", "mtss", "uruguay", "uy", "tope", "6 sueldos"],
+        description: "Calculá tu indemnización por despido según antigüedad"
     }
 ];
 
