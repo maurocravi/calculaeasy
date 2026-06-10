@@ -1,69 +1,89 @@
-import type { IrpfConfig } from "./tables-2025";
+import type { IrpfConfig } from "./types";
 import { round2 } from "../../utils";
 
 export type IrpfInput = {
-  taxableBaseUYU: number; // base imponible (nominal - aportes)
-  nominalUYU: number;     // se usa para decidir 8% o 14% según threshold
+  nominalUYU: number;                // sueldo nominal mensual
+  deductibleContributionsUYU: number; // aportes personales BPS (montepío + FONASA + FRL)
+  childrenCount?: number;            // hijos menores a cargo (deducción 100%)
+  disabledChildrenCount?: number;    // hijos con discapacidad a cargo
 };
 
 export type IrpfOutput = {
-  taxableBase: number;
+  // Base de cálculo: nominal, incrementado 6% si supera 10 BPC
+  computedBaseUYU: number;
+  fictoApplied: boolean;
 
-  // IRPF por tramos antes de deducción
+  // IRPF por franjas sobre la base de cálculo
   irpfGross: number;
 
-  // Deducción general estimada (8% / 14% sobre IRPF bruto)
-  generalDeductionRate: number;
-  generalDeductionAmount: number;
+  // Deducciones admitidas (aportes BPS + hijos), valorizadas a tasa fija
+  totalDeductions: number;
+  creditRate: number;   // 0.14 si nominal <= 15 BPC, 0.08 si no
+  creditAmount: number;
 
-  // Resultado final
   irpfNet: number;
 };
 
+// Mecanismo oficial DGI/BPS (régimen de retenciones mensuales):
+// 1) Si el nominal supera 10 BPC, la base se incrementa un 6% (ficto que
+//    anticipa el IRPF de aguinaldo y salario vacacional).
+// 2) Se aplica la escala de franjas sobre esa base.
+// 3) Las deducciones (aportes personales + hijos) NO se restan de la base:
+//    se suman y se valorizan al 14% (nominal <= 15 BPC) u 8%, y ese monto
+//    se resta del impuesto de las franjas.
 export function calculateIrpf(input: IrpfInput, config: IrpfConfig): IrpfOutput {
-  const { taxableBaseUYU, nominalUYU } = input;
+  const {
+    nominalUYU,
+    deductibleContributionsUYU,
+    childrenCount = 0,
+    disabledChildrenCount = 0,
+  } = input;
 
-  const taxableBase = Math.max(0, taxableBaseUYU);
+  const { ficto, deductionCredit, personalDeductions } = config.meta;
 
-  // 1) IRPF bruto por franjas (marginal)
+  const fictoApplied = nominalUYU > ficto.thresholdUYU;
+  const computedBaseUYU = round2(
+    fictoApplied ? nominalUYU * (1 + ficto.rate) : nominalUYU
+  );
+
   let irpfGross = 0;
   let prevLimit = 0;
 
   for (const bracket of config.brackets) {
-    const upper = bracket.upTo;
-
-    const currentUpper =
-      upper === Infinity ? taxableBase : Math.min(taxableBase, upper);
-
-    const portion = currentUpper - prevLimit;
+    const upper = Math.min(computedBaseUYU, bracket.upTo);
+    const portion = upper - prevLimit;
 
     if (portion > 0) {
       irpfGross += portion * bracket.rate;
-      prevLimit += portion;
+      prevLimit = upper;
     }
 
-    if (taxableBase <= upper) break;
+    if (computedBaseUYU <= bracket.upTo) break;
   }
 
   irpfGross = round2(irpfGross);
 
-  // 2) Deducción general (14% si <= threshold; 8% si > threshold)
-  const rate =
-    nominalUYU <= config.meta.deductionRate.threshold
-      ? config.meta.deductionRate.low
-      : config.meta.deductionRate.high;
+  const totalDeductions = round2(
+    deductibleContributionsUYU +
+      childrenCount * personalDeductions.perChildMonthly +
+      disabledChildrenCount * personalDeductions.perDisabledChildMonthly
+  );
 
-  const generalDeductionAmount = round2(irpfGross * rate);
+  const creditRate =
+    nominalUYU <= deductionCredit.thresholdUYU
+      ? deductionCredit.low
+      : deductionCredit.high;
 
-  // 3) IRPF neto
-  const irpfNet = round2(Math.max(0, irpfGross - generalDeductionAmount));
+  const creditAmount = round2(totalDeductions * creditRate);
+  const irpfNet = round2(Math.max(0, irpfGross - creditAmount));
 
   return {
-    taxableBase: round2(taxableBase),
+    computedBaseUYU,
+    fictoApplied,
     irpfGross,
-    generalDeductionRate: rate,
-    generalDeductionAmount,
+    totalDeductions,
+    creditRate,
+    creditAmount,
     irpfNet,
   };
 }
-

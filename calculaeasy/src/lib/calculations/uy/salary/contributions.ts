@@ -1,9 +1,27 @@
 import { round2 } from "../../utils";
-import { fonasaRate2025 } from "../fonasa/fonasa-2025";
+import { fonasaRate } from "../fonasa/fonasa";
 
-export type ContributionRates = {
-  retirementRate: number; // montepío
-  frlRate: number;        // reconversión laboral
+export type ContributionConfig = {
+  retirementRate: number;   // montepío (15%)
+  frlRate: number;          // reconversión laboral (0,1%)
+  bpc: number;              // para el umbral FONASA de 2,5 BPC
+  retirementCapUYU: number; // tope de cotización jubilatoria (en pesos)
+};
+
+// Tope de cotización vigente desde enero 2026 (BPS). Se ajusta con las
+// pasividades; por encima no se aporta montepío sobre el excedente.
+export const CONTRIBUTION_CONFIG_2026: ContributionConfig = {
+  retirementRate: 0.15,
+  frlRate: 0.001,
+  bpc: 6864,
+  retirementCapUYU: 288836,
+};
+
+export const CONTRIBUTION_CONFIG_2025: ContributionConfig = {
+  retirementRate: 0.15,
+  frlRate: 0.001,
+  bpc: 6576,
+  retirementCapUYU: 288836,
 };
 
 export type ContributionInput = {
@@ -22,21 +40,27 @@ export type Contributions = {
 
 export function calculateContributions(
   input: ContributionInput,
-  rates: ContributionRates
+  config: ContributionConfig
 ): Contributions {
-  const retirement = round2(input.nominalUYU * rates.retirementRate);
+  // El tope de cotización aplica solo al aporte jubilatorio;
+  // FONASA y FRL se calculan sobre el total de la remuneración.
+  const cappedBase = Math.min(input.nominalUYU, config.retirementCapUYU);
 
-  const fonasaRateUsed = fonasaRate2025({
-    nominalUYU: input.nominalUYU,
-    hasChildren: input.hasChildren,
-    spouseWithoutSNIS: input.spouseWithoutSNIS,
-  });
+  const retirement = round2(cappedBase * config.retirementRate);
+
+  const fonasaRateUsed = fonasaRate(
+    {
+      nominalUYU: input.nominalUYU,
+      hasChildren: input.hasChildren,
+      spouseWithoutSNIS: input.spouseWithoutSNIS,
+    },
+    config.bpc
+  );
 
   const fonasa = round2(input.nominalUYU * fonasaRateUsed);
-  const frl = round2(input.nominalUYU * rates.frlRate);
+  const frl = round2(input.nominalUYU * config.frlRate);
 
   const total = round2(retirement + fonasa + frl);
 
   return { retirement, fonasa, frl, total, fonasaRateUsed };
 }
-

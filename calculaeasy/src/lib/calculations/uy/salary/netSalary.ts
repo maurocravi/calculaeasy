@@ -1,6 +1,6 @@
-import { calculateContributions, type ContributionRates } from "./contributions";
+import { calculateContributions, type ContributionConfig } from "./contributions";
 import { calculateIrpf } from "../irpf/irpf";
-import type { IrpfConfig } from "../irpf/tables-2025";
+import type { IrpfConfig } from "../irpf/types";
 import { round2 } from "../../utils";
 
 export type NetSalaryInput = {
@@ -9,10 +9,9 @@ export type NetSalaryInput = {
   exchangeRate: number;
   year: number;
 
-  hasChildren: boolean;      // For FONASA
+  childrenCount: number;      // For IRPF deductions & FONASA
   spouseWithoutSNIS: boolean; // For FONASA
 };
-
 
 export type NetSalaryBreakdown = {
   nominalUYU: number;
@@ -24,12 +23,14 @@ export type NetSalaryBreakdown = {
     fonasaRateUsed: number;
   };
 
-  taxableBaseUYU: number;
   irpf: {
-    gross: number;
-    generalDeductionRate: number;
-    generalDeductionAmount: number;
-    amount: number; // neto
+    computedBase: number;   // nominal (+6% ficto si supera 10 BPC)
+    fictoApplied: boolean;
+    gross: number;          // IRPF por franjas
+    totalDeductions: number; // aportes + deducción por hijos
+    creditRate: number;     // 14% u 8%
+    creditAmount: number;
+    amount: number;         // IRPF final retenido
   };
 
   totalDiscounts: number;
@@ -39,10 +40,9 @@ export type NetSalaryBreakdown = {
 
 export function calculateNetSalary(
   input: NetSalaryInput,
-  contributionRates: ContributionRates,
+  contributionConfig: ContributionConfig,
   irpfConfig: IrpfConfig
 ): NetSalaryBreakdown {
-
   const nominalUYU =
     input.currency === "USD"
       ? round2(input.nominalMonthly * input.exchangeRate)
@@ -51,24 +51,20 @@ export function calculateNetSalary(
   const contributions = calculateContributions(
     {
       nominalUYU,
-      hasChildren: input.hasChildren,
+      hasChildren: input.childrenCount > 0,
       spouseWithoutSNIS: input.spouseWithoutSNIS,
     },
-    contributionRates
+    contributionConfig
   );
 
-
-  // Base imponible aproximada:
-  const taxableBaseUYU = Math.max(0, nominalUYU - contributions.total);
-
-const irpf = calculateIrpf(
-  {
-    taxableBaseUYU,
-    nominalUYU,
-  },
-  irpfConfig
-);
-
+  const irpf = calculateIrpf(
+    {
+      nominalUYU,
+      deductibleContributionsUYU: contributions.total,
+      childrenCount: input.childrenCount,
+    },
+    irpfConfig
+  );
 
   const totalDiscounts = round2(contributions.total + irpf.irpfNet);
   const netUYU = round2(nominalUYU - totalDiscounts);
@@ -77,11 +73,13 @@ const irpf = calculateIrpf(
   return {
     nominalUYU,
     contributions,
-    taxableBaseUYU: round2(taxableBaseUYU),
     irpf: {
+      computedBase: irpf.computedBaseUYU,
+      fictoApplied: irpf.fictoApplied,
       gross: irpf.irpfGross,
-      generalDeductionRate: irpf.generalDeductionRate,
-      generalDeductionAmount: irpf.generalDeductionAmount,
+      totalDeductions: irpf.totalDeductions,
+      creditRate: irpf.creditRate,
+      creditAmount: irpf.creditAmount,
       amount: irpf.irpfNet,
     },
 

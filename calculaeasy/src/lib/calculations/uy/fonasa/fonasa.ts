@@ -1,8 +1,4 @@
-// src/lib/calculations/uy/fonasa/fonasa-2025.ts
-
-export const BPC_2025 = 6576;
 export const FONASA_THRESHOLD_BPC = 2.5;
-export const FONASA_THRESHOLD_UYU = BPC_2025 * FONASA_THRESHOLD_BPC; // 16440
 
 export type FonasaInput = {
   nominalUYU: number;
@@ -10,8 +6,8 @@ export type FonasaInput = {
   spouseWithoutSNIS: boolean; // (*) Solo si no tiene cobertura SNIS propia
 };
 
-export function fonasaRate2025(input: FonasaInput): number {
-  const aboveThreshold = input.nominalUYU > FONASA_THRESHOLD_UYU;
+export function fonasaRate(input: FonasaInput, bpc: number): number {
+  const aboveThreshold = input.nominalUYU > bpc * FONASA_THRESHOLD_BPC;
 
   // Remuneración hasta 2,5 BPC
   if (!aboveThreshold) {

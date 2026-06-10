@@ -60,29 +60,70 @@ export const toolContent: Record<ToolContentId, ToolContent> = {
     },
 
     example: {
-      title: "Ejemplo de cálculo",
+      title: "Ejemplos de cálculo",
       content: `
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">Ejemplo 1: Semestre completo sin hijos</h3>
       <p class="mb-4">
-        Si tu sueldo nominal mensual promedio fue de <strong>$50.000</strong> y trabajaste el semestre completo:
+        Si tu sueldo nominal mensual promedio fue de <strong>$60.000</strong> y trabajaste el semestre completo:
       </p>
 
       <ul class="list-disc list-inside mb-4 space-y-2">
-        <li>Total semestre: 50.000 × 6 = <strong>$300.000</strong></li>
-        <li>Aguinaldo estimado: 300.000 / 12 = <strong>$25.000</strong></li>
+        <li>Total semestre: 60.000 × 6 = <strong>$360.000</strong></li>
+        <li>Aguinaldo nominal: 360.000 / 12 = <strong>$30.000</strong></li>
+        <li>Aporte jubilatorio (15%): <strong>$4.500</strong></li>
+        <li>FONASA (4,5%): <strong>$1.350</strong></li>
+        <li>FRL (0,10%): <strong>$30</strong></li>
+        <li><strong>Aguinaldo líquido estimado:</strong> $30.000 − $5.880 = <strong>$24.120</strong></li>
       </ul>
 
+      <h3 class="text-lg font-semibold text-slate-800 mb-2 mt-6">Ejemplo 2: Con 1 hijo y cónyuge sin SNIS</h3>
       <p class="mb-4">
-        Si trabajaste solo <strong>3 meses</strong>:
+        Si tu sueldo nominal mensual promedio fue de <strong>$60.000</strong>, trabajaste el semestre completo, tenés 1 hijo y tu cónyuge está a cargo sin cobertura SNIS propia:
       </p>
 
-      <ul class="list-disc list-inside space-y-2">
-        <li>Total semestre: 50.000 × 3 = <strong>$150.000</strong></li>
-        <li>Aguinaldo estimado: 150.000 / 12 = <strong>$12.500</strong></li>
+      <ul class="list-disc list-inside mb-4 space-y-2">
+        <li>Total semestre: 60.000 × 6 = <strong>$360.000</strong></li>
+        <li>Aguinaldo nominal: 360.000 / 12 = <strong>$30.000</strong></li>
+        <li>Aporte jubilatorio (15%): <strong>$4.500</strong></li>
+        <li>FONASA (8%): <strong>$2.400</strong></li>
+        <li>FRL (0,10%): <strong>$30</strong></li>
+        <li><strong>Aguinaldo líquido estimado:</strong> $30.000 − $6.930 = <strong>$23.070</strong></li>
       </ul>
+
+      <h3 class="text-lg font-semibold text-slate-800 mb-2 mt-6">Ejemplo 3: Solo 3 meses trabajados</h3>
+      <p class="mb-4">
+        Si tu sueldo nominal mensual promedio fue de <strong>$50.000</strong> y trabajaste solo <strong>3 meses</strong> del semestre:
+      </p>
+
+      <ul class="list-disc list-inside mb-4 space-y-2">
+        <li>Total semestre: 50.000 × 3 = <strong>$150.000</strong></li>
+        <li>Aguinaldo nominal: 150.000 / 12 = <strong>$12.500</strong></li>
+        <li>Aporte jubilatorio (15%): <strong>$1.875</strong></li>
+        <li>FONASA (4,5%): <strong>$563</strong></li>
+        <li>FRL (0,10%): <strong>$13</strong></li>
+        <li><strong>Aguinaldo líquido estimado:</strong> $12.500 − $2.451 = <strong>$10.049</strong></li>
+      </ul>
+
+      <h3 class="text-lg font-semibold text-slate-800 mb-2 mt-6">Ejemplo 4: Sueldo alto con tope jubilatorio</h3>
+      <p class="mb-4">
+        Si tu sueldo nominal mensual promedio fue de <strong>$250.000</strong> y trabajaste el semestre completo:
+      </p>
+
+      <ul class="list-disc list-inside mb-4 space-y-2">
+        <li>Total semestre: 250.000 × 6 = <strong>$1.500.000</strong></li>
+        <li>Aguinaldo nominal: 1.500.000 / 12 = <strong>$125.000</strong></li>
+        <li>Aporte jubilatorio (15% sobre tope 30 BPC = $197.280): <strong>$29.592</strong></li>
+        <li>FONASA (4,5%): <strong>$5.625</strong></li>
+        <li>FRL (0,10% sobre tope): <strong>$197</strong></li>
+        <li><strong>Aguinaldo líquido estimado:</strong> $125.000 − $35.414 = <strong>$89.586</strong></li>
+      </ul>
+      <p class="text-sm text-slate-600 mb-4">
+        Nota: los aportes jubilatorios y FRL tienen un tope máximo de aproximadamente 30 BPC (~$197.280). Como el aguinaldo ($125.000) está por debajo del tope, los descuentos se calculan sobre el monto completo. Si tu sueldo del mes de pago + aguinaldo superan el tope, los descuentos reales serían menores.
+      </p>
 
       <p class="text-sm text-slate-600 mt-4">
         Nota: el aguinaldo se calcula con remuneraciones reales del semestre. Si hubo comisiones, horas extra o bonos,
-        conviene sumar esos importes al total del semestre.
+        conviene sumar esos importes al total del semestre usando el modo "Por total ganado en el semestre".
       </p>
     `,
     },
@@ -91,7 +132,12 @@ export const toolContent: Record<ToolContentId, ToolContent> = {
       {
         question: "¿El aguinaldo se calcula sobre nominal o líquido?",
         answer:
-          "Se calcula sobre el total nominal (bruto) ganado en el semestre. El monto final que cobrás puede tener descuentos legales (aportes y, según el caso, IRPF).",
+          "Se calcula sobre el total nominal (bruto) ganado en el semestre. El monto final que cobrás en mano (líquido) puede tener descuentos de aportes jubilatorios, FONASA y FRL. El IRPF se calcula sobre el total del mes de pago (sueldo + aguinaldo), por lo que no se puede estimar de forma aislada.",
+      },
+      {
+        question: "¿Qué descuentos tiene el aguinaldo?",
+        answer:
+          "El aguinaldo nominal tiene descuentos de aportes jubilatorios (15%), FONASA (entre 3% y 8% según tu situación familiar) y FRL (0,10%). Estos aportes tienen un tope de aproximadamente 30 BPC (~$197.280 en 2025), que se aplica sobre el total del mes de pago (sueldo + aguinaldo). El IRPF no se calcula sobre el aguinaldo de forma aislada: se suma al sueldo del mes en que se paga.",
       },
       {
         question: "¿Qué conceptos se incluyen en el aguinaldo?",
@@ -118,10 +164,10 @@ export const toolContent: Record<ToolContentId, ToolContent> = {
 
   "sueldo-liquido-uruguay": {
     howItWorks: {
-      title: "Cómo se calcula el sueldo líquido en Uruguay (2025)",
+      title: "Cómo se calcula el sueldo líquido en Uruguay (2026)",
       content: `
       <p class="mb-4">
-        El <strong>sueldo líquido</strong> es el monto que recibís en tu cuenta después de aplicar los principales 
+        El <strong>sueldo líquido</strong> es el monto que recibís en tu cuenta después de aplicar los principales
         <strong>descuentos legales</strong> sobre tu sueldo nominal (bruto).
       </p>
 
@@ -129,43 +175,52 @@ export const toolContent: Record<ToolContentId, ToolContent> = {
 
       <ul class="list-disc list-inside mb-4 space-y-2">
         <li>
-          <strong>Aporte jubilatorio (15%):</strong> contribución al sistema de seguridad social.
+          <strong>Aporte jubilatorio (15%):</strong> contribución al sistema de seguridad social,
+          con tope de cotización de <strong>$288.836</strong> (2026).
         </li>
         <li>
-          <strong>FONASA (3% a 8%):</strong> aporte a salud. Varía según tu situación familiar 
+          <strong>FONASA (3% a 8%):</strong> aporte a salud. Varía según tu situación familiar
           (hijos y si tu cónyuge/concubino está a cargo y no tiene cobertura SNIS propia).
         </li>
         <li>
           <strong>FRL (0,10%):</strong> Fondo de Reconversión Laboral.
         </li>
         <li>
-          <strong>IRPF (2025):</strong> impuesto progresivo por franjas. Se calcula sobre la 
-          <strong>base imponible</strong> (nominal menos aportes).
+          <strong>IRPF (2026):</strong> impuesto progresivo por franjas, calculado con el
+          mecanismo oficial de retenciones mensuales de DGI/BPS.
         </li>
       </ul>
 
-      <p class="mb-4">
-        Para el IRPF se usan las <strong>escalas mensuales 2025</strong> y se aplica una 
-        <strong>deducción general estimada</strong> sobre el <strong>IRPF bruto</strong>:
-      </p>
+      <p class="mb-4">El IRPF se calcula en tres pasos:</p>
 
       <ul class="list-disc list-inside mb-4 space-y-2">
-        <li><strong>14%</strong> si el nominal IRPF es ≤ <strong>$98.640</strong> (15 BPC).</li>
-        <li><strong>8%</strong> si es mayor a <strong>$98.640</strong>.</li>
+        <li>
+          Si tu nominal supera <strong>10 BPC ($68.640)</strong>, la base de cálculo se incrementa un
+          <strong>6% ficto</strong> (anticipa el IRPF de aguinaldo y salario vacacional).
+        </li>
+        <li>
+          Sobre esa base se aplican las <strong>franjas mensuales 2026</strong> (mínimo no imponible: $48.048, 7 BPC).
+        </li>
+        <li>
+          Las <strong>deducciones</strong> (aportes jubilatorios, FONASA, FRL y <strong>$11.440 por hijo</strong> a cargo)
+          no se restan de la base: se valorizan al <strong>14%</strong> (nominal ≤ $102.960, 15 BPC)
+          o al <strong>8%</strong> (si es mayor) y ese crédito se resta del impuesto de las franjas.
+        </li>
       </ul>
 
       <p class="text-sm text-slate-600">
-        Nota: esta estimación corresponde al régimen general de trabajo dependiente. Puede variar por caja (BPS, Caja Profesional, etc.), 
-        multiempleo, aportes adicionales o situaciones particulares.
+        Nota: esta estimación corresponde al régimen general de trabajo dependiente. Puede variar por caja (BPS, Caja Profesional, etc.),
+        multiempleo, otras deducciones (alquiler, hipoteca) o situaciones particulares.
       </p>
     `,
     },
 
     example: {
-      title: "Ejemplo de cálculo",
+      title: "Ejemplos de cálculo (valores 2026)",
       content: `
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">Ejemplo 1: Sin hijos ni cónyuge a cargo</h3>
       <p class="mb-4">
-        Para un sueldo nominal de <strong>$70.000</strong> sin hijos ni cónyuge/concubino a cargo sin SNIS:
+        Para un sueldo nominal de <strong>$70.000</strong> sin hijos ni cónyuge/concubino a cargo:
       </p>
 
       <ul class="list-disc list-inside mb-4 space-y-2">
@@ -175,21 +230,72 @@ export const toolContent: Record<ToolContentId, ToolContent> = {
       </ul>
 
       <p class="mb-4">
-        <strong>Base imponible IRPF:</strong> $70.000 − $13.720 = <strong>$56.280</strong>
+        <strong>Base de cálculo IRPF:</strong> $70.000 supera 10 BPC ($68.640), se incrementa 6% → <strong>$74.200</strong>
       </p>
 
       <ul class="list-disc list-inside mb-4 space-y-2">
-        <li>IRPF bruto (por franjas): <strong>$1.025</strong></li>
-        <li>Deducción general (14%): <strong>−$143</strong></li>
-        <li><strong>IRPF neto:</strong> <strong>$881</strong></li>
+        <li>IRPF por franjas: <strong>$2.893</strong></li>
+        <li>Crédito por deducciones (14% de $13.720 de aportes): <strong>−$1.921</strong></li>
+        <li><strong>IRPF retenido:</strong> <strong>$972</strong></li>
       </ul>
 
       <p class="mb-4">
-        <strong>Sueldo líquido aproximado:</strong> $70.000 − $14.601 = <strong>$55.399</strong>
+        <strong>Sueldo líquido aproximado:</strong> $70.000 − $14.692 = <strong>$55.308</strong>
       </p>
 
-      <p class="text-sm text-slate-600">
-        Nota: el IRPF puede variar según tu situación real (otros ingresos, retenciones, deducciones específicas).
+      <h3 class="text-lg font-semibold text-slate-800 mb-2 mt-6">Ejemplo 2: Con 1 hijo y cónyuge sin SNIS propio</h3>
+      <p class="mb-4">
+        Para un sueldo nominal de <strong>$90.000</strong> con 1 hijo a cargo y cónyuge/concubino sin cobertura SNIS propia:
+      </p>
+
+      <ul class="list-disc list-inside mb-4 space-y-2">
+        <li>Aporte jubilatorio (15%): <strong>$13.500</strong></li>
+        <li>FONASA (8%, por hijos + cónyuge): <strong>$7.200</strong></li>
+        <li>FRL (0,10%): <strong>$90</strong></li>
+      </ul>
+
+      <p class="mb-4">
+        <strong>Base de cálculo IRPF:</strong> $90.000 × 1,06 = <strong>$95.400</strong>
+      </p>
+
+      <ul class="list-disc list-inside mb-4 space-y-2">
+        <li>IRPF por franjas: <strong>$6.073</strong></li>
+        <li>Deducciones: aportes $20.790 + hijo $11.440 = <strong>$32.230</strong></li>
+        <li>Crédito por deducciones (14%): <strong>−$4.512</strong></li>
+        <li><strong>IRPF retenido:</strong> <strong>$1.561</strong></li>
+      </ul>
+
+      <p class="mb-4">
+        <strong>Sueldo líquido aproximado:</strong> $90.000 − $22.351 = <strong>$67.649</strong>
+      </p>
+
+      <h3 class="text-lg font-semibold text-slate-800 mb-2 mt-6">Ejemplo 3: Sueldo alto con tope jubilatorio</h3>
+      <p class="mb-4">
+        Para un sueldo nominal de <strong>$350.000</strong> sin hijos ni cónyuge a cargo:
+      </p>
+
+      <ul class="list-disc list-inside mb-4 space-y-2">
+        <li>Aporte jubilatorio (15% sobre el tope de $288.836): <strong>$43.325</strong></li>
+        <li>FONASA (4,5%, sin tope): <strong>$15.750</strong></li>
+        <li>FRL (0,10%, sin tope): <strong>$350</strong></li>
+      </ul>
+
+      <p class="mb-4">
+        <strong>Base de cálculo IRPF:</strong> $350.000 × 1,06 = <strong>$371.000</strong>
+      </p>
+
+      <ul class="list-disc list-inside mb-4 space-y-2">
+        <li>IRPF por franjas: <strong>$73.744</strong></li>
+        <li>Crédito por deducciones (8% de $59.425): <strong>−$4.754</strong></li>
+        <li><strong>IRPF retenido:</strong> <strong>$68.990</strong></li>
+      </ul>
+
+      <p class="mb-4">
+        <strong>Sueldo líquido aproximado:</strong> $350.000 − $128.415 = <strong>$221.585</strong>
+      </p>
+
+      <p class="text-sm text-slate-600 mt-4">
+        Nota: los montos son estimaciones. El IRPF puede variar según tu situación real (otros ingresos, retenciones, deducciones adicionales como alquiler o hipoteca).
       </p>
     `,
     },
@@ -203,17 +309,17 @@ export const toolContent: Record<ToolContentId, ToolContent> = {
       {
         question: "¿Cómo se calcula el FONASA y por qué cambia el porcentaje?",
         answer:
-          "El FONASA se calcula como un porcentaje del sueldo nominal y varía según tu situación familiar. Para remuneraciones mayores a 2,5 BPC (con BPC 2025), puede ser 4,5% sin cargas, 6% con hijos, 6,5% si tenés cónyuge/concubino a cargo sin SNIS propio y 8% si se combinan hijos + cónyuge sin cobertura propia.",
+          "El FONASA se calcula como un porcentaje del sueldo nominal y varía según tu situación familiar. Para remuneraciones mayores a 2,5 BPC ($17.160 con BPC 2026), puede ser 4,5% sin cargas, 6% con hijos, 6,5% si tenés cónyuge/concubino a cargo sin SNIS propio y 8% si se combinan hijos + cónyuge sin cobertura propia.",
       },
       {
-        question: "¿Qué es el IRPF y cuándo se paga?",
+        question: "¿Qué es el IRPF y cómo se calcula la retención mensual?",
         answer:
-          "El IRPF (Impuesto a la Renta de las Personas Físicas) es un impuesto progresivo por franjas. Se aplica sobre la base imponible (nominal menos aportes). Si tu base imponible está por debajo del mínimo no imponible (MNIG), el IRPF puede ser 0.",
+          "El IRPF (Impuesto a la Renta de las Personas Físicas) es un impuesto progresivo por franjas sobre el sueldo nominal. Si el nominal supera 10 BPC ($68.640 en 2026), la base se incrementa un 6% ficto que anticipa el impuesto del aguinaldo y salario vacacional. Las deducciones (aportes BPS e hijos a cargo) se valorizan al 14% u 8% y se restan como crédito. Si tu nominal está por debajo del mínimo no imponible (7 BPC, $48.048 en 2026), el IRPF es 0.",
       },
       {
-        question: "¿Esta calculadora aplica deducciones por hijos o cónyuge en el IRPF?",
+        question: "¿Esta calculadora aplica deducciones por hijos en el IRPF?",
         answer:
-          "Actualmente, no. Esta versión utiliza una deducción general estimada (14% u 8%) sobre el IRPF bruto, pero no incluye deducciones específicas por dependientes en el IRPF. Sí toma en cuenta hijos y cónyuge sin SNIS propio para calcular el porcentaje de FONASA.",
+          "Sí. Por cada hijo menor a cargo se computa una deducción de 20 BPC anuales ($11.440 por mes en 2026), que se suma a los aportes de BPS y se valoriza al 14% (nominal ≤ 15 BPC) u 8% como crédito contra el impuesto. El IRPF no tiene deducción por cónyuge: el cónyuge/concubino sin SNIS propio solo afecta el porcentaje de FONASA.",
       },
       {
         question: "¿Los descuentos se aplican sobre el aguinaldo también?",

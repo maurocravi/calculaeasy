@@ -8,7 +8,6 @@ import BinaryToggle from "../../components/calculators/BinaryToggle.astro";
 import ResultCard from "../../components/calculators/ResultCard.astro";
 import RelatedTools from "../../components/RelatedTools.astro";
 import ToolContent from "../../components/ToolContent.astro";
-import { formatUYU } from "../../lib/calculations/utils";
 import { breadcrumbSchema } from "../../lib/seo/breadcrumbSchema";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
 
@@ -120,16 +119,9 @@ const schema = breadcrumbSchema(breadcrumbs);
 
 <script>
     import { calculateNetSalary } from "../../lib/calculations/uy/salary/netSalary";
-    import { IRPF_CONFIG_2025 } from "../../lib/calculations/uy/irpf/tables-2025";
+    import { IRPF_CONFIG_2026 } from "../../lib/calculations/uy/irpf/tables-2026";
+    import { CONTRIBUTION_CONFIG_2026 } from "../../lib/calculations/uy/salary/contributions";
     import { formatUYU } from "../../lib/calculations/utils";
-
-    // Configuration Constants
-    // RATES removed here as they are now handled by the calculation modules or config
-
-    const RATES = {
-        retirementRate: 0.15,
-        frlRate: 0.001,
-    };
 
     // DOM Elements
     const nominalInput = document.querySelector(
@@ -217,22 +209,18 @@ const schema = breadcrumbSchema(breadcrumbs);
         // Sólo consideramos si tiene SNIS si efectivamente tiene cónyuge
         const spouseWithoutSNIS =
             hasSpouse && parseInt(spouseSnisSelect.value) === 1;
-        const hasChildren = childrenCount > 0;
 
         const result = calculateNetSalary(
             {
                 nominalMonthly: nominal,
                 currency,
                 exchangeRate,
-                year: 2025,
-                hasChildren,
+                year: 2026,
+                childrenCount,
                 spouseWithoutSNIS,
             },
-            {
-                retirementRate: 0.15,
-                frlRate: 0.001,
-            },
-            IRPF_CONFIG_2025,
+            CONTRIBUTION_CONFIG_2026,
+            IRPF_CONFIG_2026,
         );
 
         // Update UI
@@ -249,13 +237,15 @@ const schema = breadcrumbSchema(breadcrumbs);
             resultFrl.innerText = formatUYU(result.contributions.frl);
         if (resultIrpf) resultIrpf.innerText = formatUYU(result.irpf.amount);
         if (resultIrpfGross)
-            resultIrpfGross.innerText = formatUYU(result.irpf.gross);
+            resultIrpfGross.innerText =
+                formatUYU(result.irpf.gross) +
+                (result.irpf.fictoApplied ? " (incluye ficto 6%)" : "");
         if (resultIrpfDeductionRate)
             resultIrpfDeductionRate.innerText =
-                (result.irpf.generalDeductionRate * 100).toFixed(0) + "%";
+                (result.irpf.creditRate * 100).toFixed(0) + "%";
         if (resultIrpfDeductionAmount)
             resultIrpfDeductionAmount.innerText =
-                "- " + formatUYU(result.irpf.generalDeductionAmount);
+                "- " + formatUYU(result.irpf.creditAmount);
         if (resultTotalDiscounts)
             resultTotalDiscounts.innerText =
                 "- " + formatUYU(result.totalDiscounts);

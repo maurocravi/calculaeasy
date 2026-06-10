@@ -1,4 +1,8 @@
 import { round2 } from "../../utils";
+import {
+  calculateContributions,
+  CONTRIBUTION_CONFIG_2026,
+} from "./contributions";
 
 export type AguinaldoMode = "monthly" | "semesterTotal";
 
@@ -13,11 +17,24 @@ export type AguinaldoInput = {
 
   // mode === "semesterTotal"
   semesterTotal?: number;
+
+  // Para cálculo de aportes sobre el aguinaldo (opcional)
+  childrenCount?: number;
+  hasSpouse?: boolean;
+  spouseWithoutSNIS?: boolean;
 };
 
 export type AguinaldoOutput = {
-  aguinaldo: number;
+  aguinaldo: number; // nominal
   semesterTotalUsed: number;
+  contributions: {
+    retirement: number;
+    fonasa: number;
+    frl: number;
+    total: number;
+    fonasaRateUsed: number;
+  };
+  netAguinaldo: number;
   notes: string[];
 };
 
@@ -48,9 +65,32 @@ export function calculateAguinaldo(input: AguinaldoInput): AguinaldoOutput {
 
   const aguinaldo = round2(semesterTotalUsed / 12);
 
+  // Aportes sobre el aguinaldo (estimado)
+  // Nota: en la realidad, el tope de cotización se aplica sobre sueldo + aguinaldo del mes de pago.
+  // Si el sueldo del mes ya alcanzó el tope, estos descuentos podrían ser menores.
+  const hasChildren = (input.childrenCount ?? 0) > 0;
+  const contributions = calculateContributions(
+    {
+      nominalUYU: aguinaldo,
+      hasChildren,
+      spouseWithoutSNIS: input.spouseWithoutSNIS ?? false,
+    },
+    CONTRIBUTION_CONFIG_2026
+  );
+
+  const netAguinaldo = round2(aguinaldo - contributions.total);
+
+  if (contributions.total > 0) {
+    notes.push(
+      "Los descuentos de aportes son una estimación. El tope de cotización de BPS se aplica sobre el total del mes de pago (sueldo + aguinaldo)."
+    );
+  }
+
   return {
     aguinaldo,
     semesterTotalUsed: round2(semesterTotalUsed),
+    contributions,
+    netAguinaldo,
     notes,
   };
 }
