@@ -2,11 +2,9 @@
 import Layout from "../../layouts/Layout.astro";
 import CalculatorShell from "../../components/calculators/CalculatorShell.astro";
 import InputNumber from "../../components/calculators/InputNumber.astro";
-import Select from "../../components/calculators/Select.astro";
 import CurrencyToggle from "../../components/calculators/CurrencyToggle.astro";
 import RelatedTools from "../../components/RelatedTools.astro";
 import ToolContent from "../../components/ToolContent.astro";
-import { formatUYU } from "../../lib/calculations/utils";
 import { breadcrumbSchema } from "../../lib/seo/breadcrumbSchema";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
 
@@ -146,7 +144,46 @@ const schema = breadcrumbSchema(breadcrumbs);
                                         </div>
                                     </div>
                                 </div>
+
+                                <div
+                                    class="sm:col-span-2 border-t border-indigo-200/50 pt-4 text-indigo-200 text-sm"
+                                >
+                                    Equivale a <span
+                                        id="result-hours-month"
+                                        class="font-semibold text-white"
+                                        >0 h</span
+                                    > y <span
+                                        id="result-days-month"
+                                        class="font-semibold text-white"
+                                        >0 días</span
+                                    > de trabajo por mes.
+                                </div>
                             </div>
+                        </div>
+
+                        <div
+                            class="p-4 bg-amber-50 rounded-xl border border-amber-100 text-sm text-amber-800"
+                        >
+                            <p>
+                                <strong>Con aguinaldo (13 sueldos):</strong> tu
+                                ingreso anual sería <span
+                                    id="result-yearly-aguinaldo"
+                                    class="font-semibold">$ 0</span
+                                >, sumando el sueldo anual complementario (SAC).
+                            </p>
+                        </div>
+
+                        <div
+                            id="uyu-equivalent"
+                            class="hidden p-4 bg-emerald-50 rounded-xl border border-emerald-100 text-sm text-emerald-800"
+                        >
+                            <p>
+                                <strong>Equivalente en pesos:</strong> tu sueldo
+                                mensual son aproximadamente <span
+                                    id="result-monthly-uyu"
+                                    class="font-semibold">$ 0</span
+                                > a la cotización ingresada.
+                            </p>
                         </div>
 
                         <div
@@ -154,7 +191,10 @@ const schema = breadcrumbSchema(breadcrumbs);
                         >
                             <p>
                                 <strong>Nota:</strong> Cálculo basado en el año promedio
-                                (52 semanas / 12 meses).
+                                (52 semanas / 12 meses). El valor semanal es un promedio
+                                mensualizado, no las horas reales de una semana puntual.
+                                Los montos por hora, día, semana y año se muestran en la
+                                moneda que elijas.
                             </p>
                         </div>
                     </div>
@@ -168,7 +208,7 @@ const schema = breadcrumbSchema(breadcrumbs);
 
 <script>
     import { convertSalary } from "../../lib/calculations/uy/salary/salaryConverter";
-    import { formatUYU } from "../../lib/calculations/utils";
+    import { formatUYU, formatUSD } from "../../lib/calculations/utils";
 
     const inputMonthly = document.querySelector(
         'input[name="monthlyAmount"]',
@@ -193,6 +233,18 @@ const schema = breadcrumbSchema(breadcrumbs);
     const resDaily = document.getElementById("result-daily");
     const resWeekly = document.getElementById("result-weekly");
     const resYearly = document.getElementById("result-yearly");
+    const uyuEquivalent = document.getElementById("uyu-equivalent");
+    const resMonthlyUyu = document.getElementById("result-monthly-uyu");
+    const resYearlyAguinaldo = document.getElementById(
+        "result-yearly-aguinaldo",
+    );
+    const resHoursMonth = document.getElementById("result-hours-month");
+    const resDaysMonth = document.getElementById("result-days-month");
+
+    const formatNumber = (value: number) =>
+        new Intl.NumberFormat("es-UY", { maximumFractionDigits: 1 }).format(
+            value,
+        );
 
     function toggleExchangeRate() {
         if (inputCurrency.value === "USD") {
@@ -224,10 +276,28 @@ const schema = breadcrumbSchema(breadcrumbs);
             exchangeRate,
         });
 
-        if (resHourly) resHourly.innerText = formatUYU(result.hourly);
-        if (resDaily) resDaily.innerText = formatUYU(result.daily);
-        if (resWeekly) resWeekly.innerText = formatUYU(result.weekly);
-        if (resYearly) resYearly.innerText = formatUYU(result.yearly);
+        const format = currency === "USD" ? formatUSD : formatUYU;
+
+        if (resHourly) resHourly.innerText = format(result.hourly);
+        if (resDaily) resDaily.innerText = format(result.daily);
+        if (resWeekly) resWeekly.innerText = format(result.weekly);
+        if (resYearly) resYearly.innerText = format(result.yearly);
+        if (resYearlyAguinaldo)
+            resYearlyAguinaldo.innerText = format(result.yearlyWithAguinaldo);
+
+        if (resHoursMonth)
+            resHoursMonth.innerText = `${formatNumber(result.workHoursPerMonth)} h`;
+        if (resDaysMonth)
+            resDaysMonth.innerText = `${formatNumber(result.workDaysPerMonth)} días`;
+
+        // Equivalente en pesos: solo aplica cuando se ingresa en USD.
+        if (currency === "USD" && result.monthlyInUYU !== undefined) {
+            if (resMonthlyUyu)
+                resMonthlyUyu.innerText = formatUYU(result.monthlyInUYU);
+            uyuEquivalent?.classList.remove("hidden");
+        } else {
+            uyuEquivalent?.classList.add("hidden");
+        }
     }
 
     // Listeners
@@ -236,4 +306,7 @@ const schema = breadcrumbSchema(breadcrumbs);
     inputExchangeRate?.addEventListener("input", recalculate);
     inputHours?.addEventListener("input", recalculate);
     inputDays?.addEventListener("input", recalculate);
+
+    // Cálculo inicial para mostrar horas/días por mes desde el inicio.
+    recalculate();
 </script>

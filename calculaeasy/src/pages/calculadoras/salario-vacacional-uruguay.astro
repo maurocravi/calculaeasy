@@ -2,11 +2,9 @@
 import Layout from "../../layouts/Layout.astro";
 import CalculatorShell from "../../components/calculators/CalculatorShell.astro";
 import InputNumber from "../../components/calculators/InputNumber.astro";
-import Select from "../../components/calculators/Select.astro";
 import CurrencyToggle from "../../components/calculators/CurrencyToggle.astro";
 import RelatedTools from "../../components/RelatedTools.astro";
 import ToolContent from "../../components/ToolContent.astro";
-import { formatUYU } from "../../lib/calculations/utils";
 import { breadcrumbSchema } from "../../lib/seo/breadcrumbSchema";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
 
@@ -122,6 +120,19 @@ const schema = breadcrumbSchema(breadcrumbs);
                         </div>
 
                         <div
+                            id="uyu-equivalent"
+                            class="hidden p-4 bg-emerald-50 rounded-xl border border-emerald-100 text-sm text-emerald-800"
+                        >
+                            <p>
+                                <strong>Equivalente en pesos:</strong> el total
+                                son aproximadamente <span
+                                    id="result-total-uyu"
+                                    class="font-semibold">$ 0</span
+                                > a la cotización ingresada.
+                            </p>
+                        </div>
+
+                        <div
                             class="p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm text-blue-800"
                         >
                             <p>
@@ -142,7 +153,7 @@ const schema = breadcrumbSchema(breadcrumbs);
 
 <script>
     import { calculateVacational } from "../../lib/calculations/uy/salary/vacational";
-    import { formatUYU } from "../../lib/calculations/utils";
+    import { formatUYU, formatUSD } from "../../lib/calculations/utils";
 
     const inputNominal = document.querySelector(
         'input[name="monthlyNominal"]',
@@ -165,6 +176,8 @@ const schema = breadcrumbSchema(breadcrumbs);
 
     const resultDaily = document.getElementById("result-daily");
     const resultTotal = document.getElementById("result-total");
+    const uyuEquivalent = document.getElementById("uyu-equivalent");
+    const resultTotalUyu = document.getElementById("result-total-uyu");
 
     function toggleExchangeRate() {
         if (inputCurrency.value === "USD") {
@@ -190,9 +203,19 @@ const schema = breadcrumbSchema(breadcrumbs);
             monthDaysDivisor,
         });
 
-        if (resultDaily) resultDaily.innerText = formatUYU(result.dailyRate);
-        if (resultTotal)
-            resultTotal.innerText = formatUYU(result.vacationalPay);
+        const format = currency === "USD" ? formatUSD : formatUYU;
+
+        if (resultDaily) resultDaily.innerText = format(result.dailyRate);
+        if (resultTotal) resultTotal.innerText = format(result.vacationalPay);
+
+        // Equivalente en pesos: solo aplica cuando se ingresa en USD.
+        if (currency === "USD" && result.vacationalPayInUYU !== undefined) {
+            if (resultTotalUyu)
+                resultTotalUyu.innerText = formatUYU(result.vacationalPayInUYU);
+            uyuEquivalent?.classList.remove("hidden");
+        } else {
+            uyuEquivalent?.classList.add("hidden");
+        }
     }
 
     // Listeners
@@ -201,4 +224,7 @@ const schema = breadcrumbSchema(breadcrumbs);
     inputExchangeRate?.addEventListener("input", recalculate);
     inputDays?.addEventListener("input", recalculate);
     inputDivisor?.addEventListener("input", recalculate);
+
+    // Cálculo inicial al cargar la página.
+    recalculate();
 </script>

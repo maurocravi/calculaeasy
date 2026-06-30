@@ -4,9 +4,9 @@ import CalculatorShell from "../../components/calculators/CalculatorShell.astro"
 import InputNumber from "../../components/calculators/InputNumber.astro";
 import Select from "../../components/calculators/Select.astro";
 import CurrencyToggle from "../../components/calculators/CurrencyToggle.astro";
+import BinaryToggle from "../../components/calculators/BinaryToggle.astro";
 import RelatedTools from "../../components/RelatedTools.astro";
 import ToolContent from "../../components/ToolContent.astro";
-import { formatUYU } from "../../lib/calculations/utils";
 import { breadcrumbSchema } from "../../lib/seo/breadcrumbSchema";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
 
@@ -24,7 +24,14 @@ const schema = breadcrumbSchema(breadcrumbs);
 const surchargeOptions = [
     { label: "Hora Extra Simple (100%)", value: 1.0 }, // Recargo del 100% (vale el doble)
     { label: "Hora Extra en Feriado/Descanso (150%)", value: 1.5 }, // Recargo del 150% (vale 2.5 veces)
-    { label: "Recargo Nocturno (20%)", value: 0.2 },
+];
+
+const nocturnalOptions: [
+    { label: string; value: number },
+    { label: string; value: number },
+] = [
+    { label: "No", value: 0 },
+    { label: "Sí (+20%)", value: 1 },
 ];
 ---
 
@@ -79,9 +86,16 @@ const surchargeOptions = [
                         </div>
 
                         <Select
-                            label="Tipo de Recargo"
+                            label="Tipo de Hora Extra"
                             name="surchargeRate"
                             options={surchargeOptions}
+                        />
+
+                        <BinaryToggle
+                            label="¿Horario nocturno?"
+                            name="nocturnal"
+                            options={nocturnalOptions}
+                            selected={0}
                         />
                     </div>
 
@@ -137,12 +151,34 @@ const surchargeOptions = [
                         </div>
 
                         <div
+                            id="uyu-equivalent"
+                            class="hidden p-4 bg-emerald-50 rounded-xl border border-emerald-100 text-sm text-emerald-800"
+                        >
+                            <p>
+                                <strong>Equivalente en pesos:</strong> el total a
+                                cobrar son aproximadamente <span
+                                    id="result-total-uyu"
+                                    class="font-semibold">$ 0</span
+                                > a la cotización ingresada.
+                            </p>
+                        </div>
+
+                        <ul
+                            id="result-notes"
+                            class="hidden space-y-1.5 text-sm text-slate-500 list-disc pl-5"
+                        >
+                        </ul>
+
+                        <div
                             class="p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm text-blue-800"
                         >
                             <p>
                                 <strong>Nota:</strong> Las horas extras llevan aportes
                                 jubilatorios y FONASA igual que el sueldo, y también
-                                suman para IRPF.
+                                suman para IRPF. El valor hora surge de dividir el sueldo
+                                nominal entre las horas mensuales (por defecto 192 = 24
+                                jornadas de 8 h). El cálculo es estimativo y puede variar
+                                según convenio o empresa.
                             </p>
                         </div>
                     </div>
@@ -156,7 +192,7 @@ const surchargeOptions = [
 
 <script>
     import { calculateOvertime } from "../../lib/calculations/uy/salary/overtime";
-    import { formatUYU } from "../../lib/calculations/utils";
+    import { formatUYU, formatUSD } from "../../lib/calculations/utils";
 
     const inputNominal = document.querySelector(
         'input[name="monthlyNominal"]',
@@ -179,10 +215,16 @@ const surchargeOptions = [
     const selectSurcharge = document.querySelector(
         'select[name="surchargeRate"]',
     ) as HTMLSelectElement;
+    const selectNocturnal = document.querySelector(
+        'select[name="nocturnal"]',
+    ) as HTMLSelectElement;
 
     const resultTotal = document.getElementById("result-total");
     const resultHourlyRate = document.getElementById("result-hourly-rate");
     const resultOvertimeRate = document.getElementById("result-overtime-rate");
+    const uyuEquivalent = document.getElementById("uyu-equivalent");
+    const resultTotalUyu = document.getElementById("result-total-uyu");
+    const resultNotes = document.getElementById("result-notes");
 
     function toggleExchangeRate() {
         if (inputCurrency.value === "USD") {
@@ -200,6 +242,7 @@ const surchargeOptions = [
         const monthlyHours = parseFloat(inputMonthlyHours.value) || 192;
         const overtimeHours = parseFloat(inputOvertimeHours.value) || 0;
         const surchargeRate = parseFloat(selectSurcharge.value) || 1.0;
+        const nocturnal = selectNocturnal.value === "1";
 
         const result = calculateOvertime({
             monthlyNominal,
@@ -208,13 +251,33 @@ const surchargeOptions = [
             monthlyHours,
             overtimeHours,
             surchargeRate,
+            nocturnal,
         });
 
-        if (resultTotal) resultTotal.innerText = formatUYU(result.overtimePay);
+        const format = currency === "USD" ? formatUSD : formatUYU;
+
+        if (resultTotal) resultTotal.innerText = format(result.overtimePay);
         if (resultHourlyRate)
-            resultHourlyRate.innerText = formatUYU(result.hourlyRate);
+            resultHourlyRate.innerText = format(result.hourlyRate);
         if (resultOvertimeRate)
-            resultOvertimeRate.innerText = formatUYU(result.overtimeHourlyRate);
+            resultOvertimeRate.innerText = format(result.overtimeHourlyRate);
+
+        // Equivalente en pesos: solo aplica cuando se ingresa en USD.
+        if (currency === "USD" && result.overtimePayInUYU !== undefined) {
+            if (resultTotalUyu)
+                resultTotalUyu.innerText = formatUYU(result.overtimePayInUYU);
+            uyuEquivalent?.classList.remove("hidden");
+        } else {
+            uyuEquivalent?.classList.add("hidden");
+        }
+
+        // Notas dinámicas devueltas por el cálculo.
+        if (resultNotes) {
+            resultNotes.innerHTML = result.notes
+                .map((note) => `<li>${note}</li>`)
+                .join("");
+            resultNotes.classList.toggle("hidden", result.notes.length === 0);
+        }
     }
 
     // Listeners
@@ -224,4 +287,8 @@ const surchargeOptions = [
     inputMonthlyHours?.addEventListener("input", recalculate);
     inputOvertimeHours?.addEventListener("input", recalculate);
     selectSurcharge?.addEventListener("change", recalculate);
+    selectNocturnal?.addEventListener("change", recalculate);
+
+    // Cálculo inicial para mostrar el valor hora apenas carga la página.
+    recalculate();
 </script>

@@ -6,7 +6,6 @@ import Select from "../../components/calculators/Select.astro";
 import CurrencyToggle from "../../components/calculators/CurrencyToggle.astro";
 import RelatedTools from "../../components/RelatedTools.astro";
 import ToolContent from "../../components/ToolContent.astro";
-import { formatUYU } from "../../lib/calculations/utils";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
 import { breadcrumbSchema } from "../../lib/seo/breadcrumbSchema";
 
@@ -144,6 +143,19 @@ const schema = breadcrumbSchema(breadcrumbs);
                                 </div>
                             </div>
                         </div>
+
+                        <div
+                            id="uyu-equivalent"
+                            class="hidden p-4 bg-emerald-50 rounded-xl border border-emerald-100 text-sm text-emerald-800"
+                        >
+                            <p>
+                                <strong>Equivalente en pesos:</strong> el total
+                                con IVA son aproximadamente <span
+                                    id="result-gross-uyu"
+                                    class="font-semibold">$ 0</span
+                                > a la cotización ingresada.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </CalculatorShell>
@@ -155,7 +167,7 @@ const schema = breadcrumbSchema(breadcrumbs);
 
 <script>
     import { calculateVat } from "../../lib/calculations/uy/taxes/vat";
-    import { formatUYU } from "../../lib/calculations/utils";
+    import { formatUYU, formatUSD } from "../../lib/calculations/utils";
 
     const selectMode = document.querySelector(
         'select[name="mode"]',
@@ -180,6 +192,8 @@ const schema = breadcrumbSchema(breadcrumbs);
     const resultNet = document.getElementById("result-net");
     const resultVat = document.getElementById("result-vat");
     const resultGross = document.getElementById("result-gross");
+    const uyuEquivalent = document.getElementById("uyu-equivalent");
+    const resultGrossUyu = document.getElementById("result-gross-uyu");
 
     function toggleExchangeRate() {
         if (inputCurrency.value === "USD") {
@@ -205,9 +219,20 @@ const schema = breadcrumbSchema(breadcrumbs);
             exchangeRate,
         });
 
-        if (resultNet) resultNet.innerText = formatUYU(result.net);
-        if (resultVat) resultVat.innerText = formatUYU(result.vat);
-        if (resultGross) resultGross.innerText = formatUYU(result.gross);
+        const format = currency === "USD" ? formatUSD : formatUYU;
+
+        if (resultNet) resultNet.innerText = format(result.net);
+        if (resultVat) resultVat.innerText = format(result.vat);
+        if (resultGross) resultGross.innerText = format(result.gross);
+
+        // Equivalente en pesos: solo aplica cuando se ingresa en USD.
+        if (currency === "USD" && result.grossInUYU !== undefined) {
+            if (resultGrossUyu)
+                resultGrossUyu.innerText = formatUYU(result.grossInUYU);
+            uyuEquivalent?.classList.remove("hidden");
+        } else {
+            uyuEquivalent?.classList.add("hidden");
+        }
     }
 
     // Listeners
@@ -216,4 +241,7 @@ const schema = breadcrumbSchema(breadcrumbs);
     inputAmount?.addEventListener("input", recalculate);
     inputCurrency?.addEventListener("change", toggleExchangeRate);
     inputExchangeRate?.addEventListener("input", recalculate);
+
+    // Cálculo inicial al cargar la página.
+    recalculate();
 </script>

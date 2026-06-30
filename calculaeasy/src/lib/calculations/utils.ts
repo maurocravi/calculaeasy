@@ -15,7 +15,8 @@ export function formatUYU(value: number) {
 }
 
 export function formatUSD(value: number) {
-  return new Intl.NumberFormat("en-US", {
+  // Locale es-UY para que el símbolo sea "US$" y no se confunda con pesos ("$").
+  return new Intl.NumberFormat("es-UY", {
     style: "currency",
     currency: "USD",
     maximumFractionDigits: 0,
